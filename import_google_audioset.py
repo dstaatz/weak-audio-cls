@@ -40,7 +40,7 @@ def bulk_download(folder, ids):
         "ignoreerrors": True,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
+            "preferredcodec": "m4a",
             "preferredquality": "192",
         }]
     }
@@ -65,34 +65,53 @@ def download_multiple_labels(meta_data, label_ids, folder):
                 break
     bulk_download(folder, ids)
 
+def gen_params(data, labels, folder):
+    params = []
+    for d in data:
+        if len(list(set(labels) & set(d["positive_labels"]))) > 0:
+            params.append((d["ytid"], d['start_seconds'], d['end_seconds'], folder))
+    return params
+
 # Test function
 if __name__ == "__main__":
+    test = load_csv("google_audioset_meta/eval_segments.csv")
+    # train = load_csv("google_audioset_meta/balanced_train_segments.csv")
+    # train_un = load_csv("google_audioset_meta/unbalanced_train_segments.csv")
 
-    data1 = load_csv("google_audioset_meta/eval_segments.csv")
-    for i in range(0, 10):
-        print(data1[i])
-    print()
+    labels = ["/m/03l9g"]
+    # download_multiple_labels(test, labels, "data/test/")
+    from clip_download import get_clip
+    from joblib import Parallel, delayed
+    params = gen_params(test, labels, 'data/test')
+    def gclip(p):
+        return get_clip(*p)
+    Parallel(n_jobs=-1, verbose=50)(delayed(gclip)(p) for p in params)
 
-    data2 = load_csv("google_audioset_meta/balanced_train_segments.csv")
-    for i in range(0, 5):
-        print(data2[i])
-    print()
-
-    data3 = load_csv("google_audioset_meta/unbalanced_train_segments.csv")
-    for i in range(0, 5):
-        print(data3[i])
-    print()
-
-    ontology = load_ontology()
-    print(ontology[0])
-    print()
-
-    ids = [x["ytid"] for x in data1]
-    folder = "data/test/"
-    print(ids[30:50])
-    bulk_download(folder, ids[30:50])
-
-    labels = ["/m/04rlf", "/t/dd00004", "/t/dd00005", "/m/03l9g"]
-    # download_labeled(data1[0:10], labels[0], folder)
-    download_multiple_labels(data1[0:10], labels, folder)
+    # data1 = load_csv("google_audioset_meta/eval_segments.csv")
+    # for i in range(0, 10):
+    #     print(data1[i])
+    # print()
+    #
+    # data2 = load_csv("google_audioset_meta/balanced_train_segments.csv")
+    # for i in range(0, 5):
+    #     print(data2[i])
+    # print()
+    #
+    # data3 = load_csv("google_audioset_meta/unbalanced_train_segments.csv")
+    # for i in range(0, 5):
+    #     print(data3[i])
+    # print()
+    #
+    # ontology = load_ontology()
+    # print(ontology[0])
+    # print()
+    #
+    # ids = [x["ytid"] for x in data1]
+    # folder = "data/test/"
+    # print(ids[30:50])
+    # bulk_download(folder, ids[30:50])
+    #
+    # labels = ["/m/04rlf", "/t/dd00004", "/t/dd00005", "/m/03l9g"]
+    # # download_labeled(data1[0:10], labels[0], folder)
+    # download_multiple_labels(data1[0:10], labels, folder)
 
