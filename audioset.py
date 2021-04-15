@@ -9,6 +9,7 @@ import subprocess
 # Package imports
 import youtube_dl
 import ffmpeg
+from scipy.io import wavfile
 
 # Convert 15 seconds to "00:00:15.00"
 def secs_to_time_str(seconds):
@@ -62,7 +63,7 @@ def bulk_download(folder, meta, clip=True):
         "format": "bestaudio/best",
         "outtmpl": folder + "%(id)s.%(ext)s", # TODO: Could make more robust
         "ignoreerrors": True,
-        "quiet": True,
+        "quiet": False,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "wav",
@@ -71,7 +72,7 @@ def bulk_download(folder, meta, clip=True):
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download(ids)
-    
+
     if clip:
         clip_all(folder, meta)
 
@@ -117,7 +118,7 @@ def clip_item(folder, item_meta):
         .input(temp_path, ss=start_time, t=capture_time)
         .output(path)
         .overwrite_output()
-        .run(quiet=True)
+        .run()
     )
 
     # Remove the temporary file
@@ -131,6 +132,25 @@ def clip_all(folder, meta):
         except FileNotFoundError:
             pass
 
+# Load the dataset into memory, shows warning for missing files
+def load_dataset(folder, meta):
+    rt = list()
+    for item in meta:
+        path = folder + item["ytid"] + ".wav"
+        try:
+            (sample_rate, data) = wavfile.read(path)
+            rt.append((sample_rate, data))
+        except FileNotFoundError:
+            print("WARNING:", path, "was not found")
+    return rt
+
+def load_dataset_labeled(folder, meta, label_id):
+    meta = filter_labels(meta, [label_id])
+    return load_dataset(folder, meta)
+
+def load_dataset_multiple_labels(folder, meta, label_ids):
+    meta = filter_labels(meta, label_ids)
+    return load_dataset(folder, meta)
 
 # Test function
 if __name__ == "__main__":
@@ -146,8 +166,9 @@ if __name__ == "__main__":
     # print(get_label_id_from_name(ontology, "Hammer"))
 
     folder = "data/test/"
-    download_labeled(folder, meta1, "/m/03l9g")
-
+    # download_labeled(folder, meta1, "/m/03l9g")
+    data = load_dataset_labeled(folder, meta1, "/m/03l9g")
+    
 
     # ids = [x["ytid"] for x in meta1]
     # folder = "data/eval_segments/"
