@@ -108,7 +108,7 @@ def load_dataset(folder, meta):
         path = folder + item["ytid"] + ".m4a"
         try:
             data = AudioSegment.from_file(path)
-            rt.append(data)
+            rt.append((item, data))
         except FileNotFoundError:
             print("WARNING:", path, "was not found")
     return rt
