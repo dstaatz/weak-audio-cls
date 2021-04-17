@@ -50,6 +50,10 @@ def load_csv(filename):
             data.append(d)
     return data
 
+# Determines if an item is labeled label, returns bool
+def check_label(item, label):
+    label in item["positive_labels"]
+
 # Returns list of dict of label information
 def load_ontology():
     with open("google_audioset_meta/ontology.json") as file:
@@ -138,8 +142,10 @@ if __name__ == "__main__":
     eval = load_csv("google_audioset_meta/eval_segments.csv")
     balanced = load_csv("google_audioset_meta/balanced_train_segments.csv")
     unbalanced = load_csv("google_audioset_meta/unbalanced_train_segments.csv")
+    ontology = load_ontology()
 
-    labels = ["/m/03l9g"]
+    classes = ["hammer", "drill"]
+    labels = [get_label_id_from_name(ontology, cl) for cl in classes]
     download_meta(eval, labels, 'data/eval')
     download_meta(balanced, labels, 'data/balanced')
     download_meta(unbalanced, labels, 'data/unbalanced')
