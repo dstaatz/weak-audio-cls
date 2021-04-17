@@ -6,12 +6,7 @@ from scipy.signal import stft
 from scipy.linalg import svd
 
 from import_google_audioset import *
-
-
-## Parameters
-
-fs = 44100 # Sampling frequency (hz)
-
+from pydub.utils import mediainfo
 
 # eval_meta = load_csv("google_audioset_meta/eval_segments.csv")
 balanced_meta = load_csv("google_audioset_meta/balanced_train_segments.csv")
@@ -25,9 +20,10 @@ meta = filter_labels(balanced_meta, [label])
 
 # Load in a dataset and perform feature extraction
 audio = load_dataset("data/balanced/", meta)
-labels = [audio[i][0] for i in range(len(audio))]
+metadata = [audio[i][0] for i in range(len(audio))]
 data = [np.array(audio[i][1].get_array_of_samples()) for i in range(len(audio))]
-stfts = [stft(data[i], fs=fs, nperseg=512, nfft=1024) for i in range(len(data))]
+freqs = [mediainfo("data/balanced/" + item["ytid"] + ".m4a")['sample_rate'] for item in metadata]
+stfts = [stft(data[i], fs=freqs[i], nperseg=512, nfft=1024) for i in range(len(data))]
 svds = []
 for i in range(len(stfts)):
     print("Calculating svd number %i of shape %s" % (i, str(stfts[i][2].shape)))
@@ -49,7 +45,7 @@ print("Vh matrix:", svds[0][2].shape)
 print(np.abs(stfts[0][2]).min())
 print(np.abs(stfts[0][2]).max())
 plt.pcolormesh(stfts[0][1], stfts[0][0], np.abs(stfts[0][2]), vmin=0, vmax=250, shading="auto")
-plt.title("STFT Magnitude of %s" % (labels[0]["ytid"]))
+plt.title("STFT Magnitude of %s" % (metadata[0]["ytid"]))
 plt.ylabel("Frequency [Hz]")
 plt.xlabel("Time [sec]")
 plt.show()
@@ -58,7 +54,7 @@ plt.show()
 print(np.abs(stfts[1][2]).min())
 print(np.abs(stfts[1][2]).max())
 plt.pcolormesh(stfts[1][1], stfts[1][0], np.abs(stfts[1][2]), vmin=0, vmax=250, shading="auto")
-plt.title("STFT Magnitude of %s" % (labels[1]["ytid"]))
+plt.title("STFT Magnitude of %s" % (metadata[1]["ytid"]))
 plt.ylabel("Frequency [Hz]")
 plt.xlabel("Time [sec]")
 plt.show()
