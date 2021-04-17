@@ -21,12 +21,12 @@ meta = filter_labels(balanced_meta, [label])
 # Load in a dataset and perform feature extraction
 audio = load_dataset("data/balanced/", meta)
 metadata = [audio[i][0] for i in range(len(audio))]
-data = [np.array(audio[i][1].get_array_of_samples()) for i in range(len(audio))]
-freqs = [mediainfo("data/balanced/" + item["ytid"] + ".m4a")['sample_rate'] for item in metadata]
+data = [np.array(audio[i][1].set_channels(1).get_array_of_samples()) for i in range(len(audio))]
+freqs = [int(mediainfo("data/balanced/" + item["ytid"] + ".m4a")['sample_rate']) for item in metadata]
 stfts = [stft(data[i], fs=freqs[i], nperseg=512, nfft=1024) for i in range(len(data))]
 svds = []
 for i in range(len(stfts)):
-    print("Calculating svd number %i of shape %s" % (i, str(stfts[i][2].shape)))
+    print("Calculating svd {} of shape {}".format(metadata[i]['ytid'], str(stfts[i][2].shape)))
     svds.append(svd(stfts[i][2]))
 
 print("Sample frequencies:", stfts[0][0].shape)
