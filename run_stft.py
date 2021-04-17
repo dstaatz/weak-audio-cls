@@ -9,6 +9,7 @@ from import_google_audioset import *
 from pydub.utils import mediainfo
 
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
 
 # eval_meta = load_csv("google_audioset_meta/eval_segments.csv")
 balanced_meta = load_csv("google_audioset_meta/balanced_train_segments.csv")
@@ -54,6 +55,7 @@ def plot_stft(i):
     plt.show()
 
 
+# Do PCA
 pca = PCA(n_components=100)
 xvals = [np.abs(stft[2]).T for stft in stfts]
 # X = np.concatenate([np.abs(stft[2]) for stft in stfts], axis=1)
@@ -62,3 +64,10 @@ pca.fit(X)
 t_xvals = [pca.transform(x) for x in xvals]
 t_X = pca.transform(X)
 
+# Do K-Means
+n_clusters=7
+kmeans = KMeans(n_clusters=n_clusters)
+kmeans.fit(t_X)
+onehot = np.eye(n_clusters)
+kt_xvals = [onehot[kmeans.predict(x)] for x in t_xvals]
+kt_X = onehot[kmeans.predict(t_X)]
