@@ -65,9 +65,20 @@ t_xvals = [pca.transform(x) for x in xvals]
 t_X = pca.transform(X)
 
 # Do K-Means
-n_clusters=7
+n_clusters = 7
 kmeans = KMeans(n_clusters=n_clusters)
 kmeans.fit(t_X)
 onehot = np.eye(n_clusters)
 kt_xvals = [onehot[kmeans.predict(x)] for x in t_xvals]
-kt_X = onehot[kmeans.predict(t_X)]
+# kt_X = onehot[kmeans.predict(t_X)]
+
+timediffs = [(stft[1][1] - stft[1][0]) for stft in stfts]
+timestep = 0.1
+binsize = [int(timestep/td) for td in timediffs]
+
+def chunks(lst, n):
+    # https://stackoverflow.com/a/312464
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+hist_xvals = [np.array([np.mean(h, axis=0) for h in chunks(x, n)]) for x, n in zip(kt_xvals, binsize)]
