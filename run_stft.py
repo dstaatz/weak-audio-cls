@@ -7,7 +7,7 @@ from scipy.signal import stft
 
 from import_google_audioset import *
 from pydub.utils import mediainfo
-
+from joblib import Parallel, delayed
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn import svm
@@ -46,6 +46,7 @@ def plot_stft(i):
 
 
 # Do PCA
+print("Running PCA")
 pca = PCA(n_components=100)
 xvals = [np.abs(stft[2]).T for stft in stfts]
 # X = np.concatenate([np.abs(stft[2]) for stft in stfts], axis=1)
@@ -55,6 +56,7 @@ t_xvals = [pca.transform(x) for x in xvals]
 t_X = pca.transform(X)
 
 # Do K-Means
+print("Running K-means")
 n_clusters = 7
 kmeans = KMeans(n_clusters=n_clusters)
 kmeans.fit(t_X)
@@ -72,11 +74,11 @@ def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 hist_xvals = [np.array([np.mean(h, axis=0) for h in chunks(x, n)]) for x, n in zip(kt_xvals, binsize)]
-
+num_segments_per_clip = [hist_xval.shape[0] for hist_xval in hist_xvals]
 
 # Train svm
-test_Cs = [2**i for i in range(-2, 2)] # paper uses range(-7, 7)
-test_gammas = [2**i for i in range(-2, 2)] # paper uses range(-7, 7)
+test_Cs = [2**i for i in range(-7, 7)] # paper uses range(-7, 7)
+test_gammas = [2**i for i in range(-7, 7)] # paper uses range(-7, 7)
 
 # Hold a certian percent of each class to become the holdout set
 train_percent = 0.7
@@ -89,20 +91,57 @@ holdout_idxs = sum([idxs[i][train_counts[i]:] for i in range(len(labels))], [])
 train_idxs.sort() # shouldn't really matter
 holdout_idxs.sort() # shouldn't really matter
 
-y_train = [y_labels[idx] for idx in train_idxs]
-y_holdout = [y_labels[idx] for idx in holdout_idxs]
+y_train = np.concatenate([[y_labels[idx] for i in range(num_segments_per_clip[idx])] for idx in train_idxs])
+y_holdout = np.concatenate([[y_labels[idx] for i in range(num_segments_per_clip[idx])] for idx in holdout_idxs])
 
-X_train = [hist_xvals[idx] for idx in train_idxs]
-X_holdout = [hist_xvals[idx] for idx in holdout_idxs]
+X_train = np.concatenate([hist_xvals[idx] for idx in train_idxs])
+X_holdout = np.concatenate([hist_xvals[idx] for idx in holdout_idxs])
 
-# TODO: Try all test_Cs and test_gammas for a radial basis kernel
-# classifiers = []
-# for C in test_Cs:
-#     temp = []
-#     for gamma in test_gammas:
-#         clf = svm.SVC(C=C, kernel="rbf", gamma=gamma)
-#         clf.fit(X_train_fit, y_train_fit)
-#         temp.append(clf)
-#     rbf_clfs.append(temp)
+# Fit to all test_Cs and test_gammas for a radial basis kernel SVM
 
+def train_svm(params):
+    
+params = gen_params(meta, labels, folder)
+def gclip(p):
+    return get_clip(*p)
+Parallel(n_jobs=-1, verbose=50)(delayed(gclip)(p) for p in params)
 
+clfs = []
+for C in test_Cs:
+    temp = []
+    for gamma in test_gammas:
+        print("Training SVM (C = %s, gamma = %s)" % (str(C), str(gamma)))
+        clf = svm.SVC(C=C, kernel="rbf", gamma=gamma)
+        clf.fit(X_train, y_train)
+        temp.append(clf)
+    clfs.append(temp)
+print()
+
+# Determine the best C and gamma for a radial basis kernel
+prob_errs = []
+for i in range(len(test_Cs)):
+    temp = []
+    for j in range(len(test_gammas)):
+        print("Error (C = %s, gamma = %s): " % (str(test_Cs[i]), str(test_gammas[j])), end="")
+        prob_err = 1 - clfs[i][j].score(X_holdout, y_holdout)
+        print(prob_err)
+        temp.append(prob_err)
+    prob_errs.append(temp)
+
+min_err = min([min(temp) for temp in prob_errs])
+
+min_idx = None
+for (i, temp) in enumerate(prob_errs):
+    if min_err in temp:
+        min_idx = (i, temp.index(min_err))
+        break
+
+print()
+print("Minimum error:", min_err)
+print("Minimum index:", min_idx)
+
+best_C = test_Cs[min_idx[0]]
+best_gamma = test_gammas[min_idx[1]]
+
+print("Best C:", best_C)
+print("Best gamma:", best_gamma)
