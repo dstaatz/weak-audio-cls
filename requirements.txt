@@ -1,3 +1,4 @@
 youtube-dl
 ffmpeg-python
 pydub
+opencv-python

@@ -22,7 +22,7 @@ ontology = load_ontology()
 
 # Load in a dataset and perform feature extraction
 # classes = ["hammer", "drill"]
-classes = ['drill']
+classes = ['hammer']
 labels = [get_label_id_from_name(ontology, cl) for cl in classes]
 meta = filter_labels(balanced_meta, labels)
 audio = load_dataset("data/balanced/", meta)
@@ -129,8 +129,8 @@ for i in range(len(metadata)):
 stop
 
 # Train svm
-test_Cs = [2**i for i in range(-7, 7)] # paper uses range(-7, 7)
-test_gammas = [2**i for i in range(-7, 7)] # paper uses range(-7, 7)
+test_Cs = [2**i for i in range(-7, 15)] # paper uses range(-7, 7)
+test_gammas = [2**i for i in range(-7, 15)] # paper uses range(-7, 7)
 
 # Hold a certian percent of each class to become the holdout set
 train_percent = 0.7
@@ -189,3 +189,14 @@ best_gamma = test_gammas[min_idx[1]]
 
 print("Best C:", best_C)
 print("Best gamma:", best_gamma)
+
+def plot_errs(prob_errs):
+    plt.pcolormesh(np.array(prob_errs), shading="auto")
+    plt.title("Holdout errors for varied parameters C and gamma")
+    plt.ylabel("C")
+    plt.yticks([i + 0.5 for i in range(len(test_Cs))], [test_Cs[i] for i in range(len(test_Cs))])
+    plt.xlabel("Gamma")
+    plt.xticks([i + 0.5 for i in range(len(test_Cs))], [test_Cs[i] for i in range(len(test_Cs))], rotation ='vertical')
+    plt.show()
+
+plot_errs(prob_errs)
