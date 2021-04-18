@@ -13,6 +13,7 @@ from sklearn.cluster import KMeans
 from sklearn import svm
 
 import cv2
+import subprocess
 
 # eval_meta = load_csv("google_audioset_meta/eval_segments.csv")
 balanced_meta = load_csv("google_audioset_meta/balanced_train_segments.csv")
@@ -21,13 +22,15 @@ ontology = load_ontology()
 
 # Load in a dataset and perform feature extraction
 # classes = ["hammer", "drill"]
-classes = ['hammer']
+classes = ['drill']
 labels = [get_label_id_from_name(ontology, cl) for cl in classes]
 meta = filter_labels(balanced_meta, labels)
 audio = load_dataset("data/balanced/", meta)
 metadata = [audio[i][0] for i in range(len(audio))]
 data = [np.array(audio[i][1].set_channels(1).get_array_of_samples()) for i in range(len(audio))]
 freqs = [int(mediainfo("data/balanced/" + item["ytid"] + ".m4a")['sample_rate']) for item in metadata]
+for item in metadata:
+    item['path'] = "data/balanced/" + item["ytid"] + ".m4a"
 stfts = [stft(data[i], fs=freqs[i], nperseg=512, nfft=1024) for i in range(len(data))]
 
 y_labels = []
@@ -89,6 +92,8 @@ bin_xvals = [binarymeans.predict(x) for x in hist_xvals]
 
 
 def makevid(meta, labelling, h_times, length):
+    outpath = 'results/' + meta['ytid'] + '.mp4'
+    temppath = 'results/temp_' + meta['ytid'] + '.mp4'
     vidshape = (32,32)
     # Create a blank 300x300 black image
     red = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
@@ -100,8 +105,8 @@ def makevid(meta, labelling, h_times, length):
     green[:] = (0, 255, 0)
 
     fps = 30.0
-    fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
-    video = cv2.VideoWriter('video.avi', fourcc, fps, vidshape, True)
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    video = cv2.VideoWriter(temppath, fourcc, fps, vidshape, True)
     for i in range(int(length*fps)):
         time = i/fps
         idx = np.where(h_times <= time)[0][-1]
@@ -112,8 +117,16 @@ def makevid(meta, labelling, h_times, length):
     cv2.destroyAllWindows()
     video.release()
 
+    # audioclip = moviepy.editor.AudioFileClip(meta['path'])
+    command = ['ffmpeg', '-i', temppath, '-i', meta['path'], '-c:v', 'copy', '-c:a', 'aac', outpath]
+    res = subprocess.run(command, capture_output=True)
+    os.remove(temppath)
 
-# makevid(None, bin_xvals[0], hist_times[0], times[0][-1])
+# makevid(metadata[i], bin_xvals[i], hist_times[i], times[i][-1])
+for i in range(len(metadata)):
+    makevid(metadata[i], bin_xvals[i], hist_times[i], times[i][-1])
+
+stop
 
 # Train svm
 test_Cs = [2**i for i in range(-7, 7)] # paper uses range(-7, 7)
