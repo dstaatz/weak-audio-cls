@@ -7,10 +7,12 @@ from scipy.signal import stft
 
 from import_google_audioset import *
 from pydub.utils import mediainfo
-from joblib import Parallel, delayed
+
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn import svm
+
+import cv2
 
 # eval_meta = load_csv("google_audioset_meta/eval_segments.csv")
 balanced_meta = load_csv("google_audioset_meta/balanced_train_segments.csv")
@@ -18,7 +20,8 @@ balanced_meta = load_csv("google_audioset_meta/balanced_train_segments.csv")
 ontology = load_ontology()
 
 # Load in a dataset and perform feature extraction
-classes = ["hammer", "drill"]
+# classes = ["hammer", "drill"]
+classes = ['hammer']
 labels = [get_label_id_from_name(ontology, cl) for cl in classes]
 meta = filter_labels(balanced_meta, labels)
 audio = load_dataset("data/balanced/", meta)
@@ -67,6 +70,7 @@ kt_xvals = [onehot[kmeans.predict(x)] for x in t_xvals]
 timediffs = [(stft[1][1] - stft[1][0]) for stft in stfts]
 timestep = 0.1
 binsize = [int(timestep/td) for td in timediffs]
+times = [stft[1] for stft in stfts]
 
 def chunks(lst, n):
     # https://stackoverflow.com/a/312464
@@ -74,7 +78,42 @@ def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 hist_xvals = [np.array([np.mean(h, axis=0) for h in chunks(x, n)]) for x, n in zip(kt_xvals, binsize)]
+hist_times = [np.array([h[0] for h in chunks(t, n)]) for t, n in zip(times, binsize)] # times where histogram starts
+hist_X = np.concatenate(hist_xvals, axis=0)
 num_segments_per_clip = [hist_xval.shape[0] for hist_xval in hist_xvals]
+
+# let's try to cluster to label between the event happening and the event not happening
+binarymeans = KMeans(n_clusters=2)
+binarymeans.fit(hist_X)
+bin_xvals = [binarymeans.predict(x) for x in hist_xvals]
+
+
+def makevid(meta, labelling, h_times, length):
+    vidshape = (32,32)
+    # Create a blank 300x300 black image
+    red = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
+    # Fill image with red color(set each pixel to red)
+    red[:] = (0, 0, 255)
+    # Create a blank 300x300 black image
+    green = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
+    # Fill image with red color(set each pixel to green)
+    green[:] = (0, 255, 0)
+
+    fps = 30.0
+    fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
+    video = cv2.VideoWriter('video.avi', fourcc, fps, vidshape, True)
+    for i in range(int(length*fps)):
+        time = i/fps
+        idx = np.where(h_times <= time)[0][-1]
+        if labelling[idx] == 1:
+            video.write(green)
+        else:
+            video.write(red)
+    cv2.destroyAllWindows()
+    video.release()
+
+
+# makevid(None, bin_xvals[0], hist_times[0], times[0][-1])
 
 # Train svm
 test_Cs = [2**i for i in range(-7, 7)] # paper uses range(-7, 7)
@@ -100,7 +139,7 @@ X_holdout = np.concatenate([hist_xvals[idx] for idx in holdout_idxs])
 # Fit to all test_Cs and test_gammas for a radial basis kernel SVM
 
 def train_svm(params):
-    
+
 params = gen_params(meta, labels, folder)
 def gclip(p):
     return get_clip(*p)
