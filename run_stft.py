@@ -137,14 +137,6 @@ X_train = np.concatenate([hist_xvals[idx] for idx in train_idxs])
 X_holdout = np.concatenate([hist_xvals[idx] for idx in holdout_idxs])
 
 # Fit to all test_Cs and test_gammas for a radial basis kernel SVM
-
-def train_svm(params):
-
-params = gen_params(meta, labels, folder)
-def gclip(p):
-    return get_clip(*p)
-Parallel(n_jobs=-1, verbose=50)(delayed(gclip)(p) for p in params)
-
 clfs = []
 for C in test_Cs:
     temp = []
