@@ -144,9 +144,9 @@ if __name__ == "__main__":
     unbalanced = load_csv("google_audioset_meta/unbalanced_train_segments.csv")
     ontology = load_ontology()
 
-    classes = ["hammer", "drill"]
+    classes = ["hammer", "drill", "noise"]
     labels = [get_label_id_from_name(ontology, cl) for cl in classes]
     download_meta(eval, labels, 'data/eval')
     download_meta(balanced, labels, 'data/balanced')
-    download_meta(unbalanced, labels, 'data/unbalanced')
+    # download_meta(unbalanced, labels, 'data/unbalanced')
 
