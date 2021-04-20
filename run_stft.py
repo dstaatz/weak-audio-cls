@@ -15,43 +15,70 @@ from sklearn import svm
 import cv2
 import subprocess
 
-eval_meta = load_csv("google_audioset_meta/eval_segments.csv")
-balanced_meta = load_csv("google_audioset_meta/balanced_train_segments.csv")
-unbalanced_meta = load_csv("google_audioset_meta/unbalanced_train_segments.csv")
+
 ontology = load_ontology()
 
-# Load in a dataset and perform feature extraction
-classes = ['hammer', 'drill', 'noise']
-# classes = ['hammer']
+# Select classes
+classes = ["hammer", "drill", "noise"]
+# classes = ["hammer"]
 labels = [get_label_id_from_name(ontology, cl) for cl in classes]
 
 def getdata(splittype):
-    if splittype == 'balanced':
-        _meta = balanced_meta
-        folder = 'data/balanced/'
-    elif splittype == 'eval':
-        _meta = eval_meta
-        folder = 'data/eval/'
+
+    # Google
+    if splittype.lower() == "google-balanced":
+        metafile = "google_audioset_meta/eval_segments.csv"
+        folder = "data/google/balanced/"
+    elif splittype.lower() == "google-eval":
+        metafile = "google_audioset_meta/balanced_train_segments.csv"
+        folder = "data/google/eval/"
+    elif splittype.lower() == "google-unbalanced":
+        metafile = "google_audioset_meta/unbalanced_train_segments.csv"
+        folder = "data/google/unbalanced/"
+    # dcase
+    elif splittype.lower() == "dcase-weak":
+        metafile = "dcase_audioset_meta/training/weak.csv"
+        folder = "data/dcase/weak/"
+    elif splittype.lower() == "dcase-unlabel":
+        metafile = "dcase_audioset_meta/training/unlabel_in_domain.csv"
+        folder = "data/dcase/unlabel/"
+    elif splittype.lower() == "dcase-eval":
+        metafile = "dcase_audioset_meta/validation/eval_dcase2018.csv"
+        folder = "data/dcase/eval/"
+    elif splittype.lower() == "dcase-test":
+        metafile = "dcase_audioset_meta/validation/test_dcase2018.csv"
+        folder = "data/dcase/test/"
+    elif splittype.lower() == "dcase-validation":
+        metafile = "dcase_audioset_meta/validation/validation.csv"
+        folder = "data/dcase/validation/"
     else:
-        _meta = unbalanced_meta
-        folder = 'data/unbalanced/'
+        raise ValueError
+
+    _meta = load_csv(metafile)
     meta = filter_labels(_meta, labels)
     audio = load_dataset(folder, meta)
     metadata = [audio[i][0] for i in range(len(audio))]
     data = [np.array(audio[i][1].set_channels(1).get_array_of_samples()) for i in range(len(audio))]
-    freqs = [int(mediainfo(folder + item["ytid"] + ".m4a")['sample_rate']) for item in metadata]
+    freqs = [int(mediainfo(folder + item["ytid"] + ".m4a")["sample_rate"]) for item in metadata]
     for item in metadata:
-        item['path'] = folder + item["ytid"] + ".m4a"
+        item["path"] = folder + item["ytid"] + ".m4a"
     stfts = [stft(data[i], fs=freqs[i], nperseg=512, nfft=1024) for i in range(len(data))]
     return metadata, stfts
 
-metadata, stfts = getdata('balanced')
+metadata, stfts = getdata("google-balanced")
+# metadata, stfts = getdata("google-eval")
+# metadata, stfts = getdata("google-unbalanced")
+# metadata, stfts = getdata("dcase-weak")
+# metadata, stfts = getdata("dcase-unlabel")
+# metadata, stfts = getdata("dcase-eval")
+# metadata, stfts = getdata("dcase-test")
+# metadata, stfts = getdata("dcase-validation")
 
 def get_yvals(metadata):
     y_labels = []
     for item in metadata:
         for label in labels:
-            if label in item["positive_labels"]:
+            if label in item["weak_labels"]:
                 y_labels.append(label)
                 break # If multiple labels are assigned to the same item, just take the first label
     return y_labels
@@ -212,31 +239,9 @@ else:
     prob_errs = [r[1] for r in res]
     clfs = np.array(clfs).reshape((len(test_Cs), len(test_gammas)))
     prob_errs = np.array(prob_errs).reshape((len(test_Cs), len(test_gammas)))
-    if verbose:
-        print()
 
-    # Determine the best C and gamma for a radial basis kernel
-    # prob_errs = []
-    # for i in range(len(test_Cs)):
-    #     temp = []
-    #     for j in range(len(test_gammas)):
-    #         if verbose:
-    #             print("Error (C = %s, gamma = %s): " % (str(test_Cs[i]), str(test_gammas[j])), end="")
-    #         prob_err = 1 - clfs[i][j].score(X_holdout, y_holdout)
-    #         if verbose:
-    #             print(prob_err)
-    #         temp.append(prob_err)
-    #     prob_errs.append(temp)
-
-    # min_err = min([min(temp) for temp in prob_errs])
     min_err = np.min(prob_errs)
     min_idx = np.unravel_index(prob_errs.argmin(), prob_errs.shape)
-
-    # min_idx = None
-    # for (i, temp) in enumerate(prob_errs):
-    #     if min_err in temp:
-    #         min_idx = (i, temp.index(min_err))
-    #         break
 
     if verbose:
         print()

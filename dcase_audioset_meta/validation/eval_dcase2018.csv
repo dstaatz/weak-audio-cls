@@ -1,6 +1,6 @@
 # stongly labeled eval youtube video segments from the dcase dataset, reformated like google_audioset_meta
 # 10 classes: /m/07pp_mv, /m/09x0r, /m/0bt9lr, /m/01yrx, /m/04brg2, /m/0dxrf, /m/04fgwm, /m/0d31p, /m/02pjr4, /m/0838f
-# YTID, start_seconds, end_seconds, num_positive_labels, onset, offset
+# YTID, start_seconds, end_seconds, strong_label, onset, offset
 Sb0169-lqLs, 0.000, 9.000, "/m/0bt9lr", 0.778, 7.187
 9OqtuFGCCR8, 30.000, 40.000, "/m/07pp_mv", 0.000, 0.302
 9OqtuFGCCR8, 30.000, 40.000, "/m/07pp_mv", 0.789, 1.126
