@@ -7,10 +7,11 @@ from scipy.signal import stft
 
 from import_google_audioset import *
 from pydub.utils import mediainfo
-
+from joblib import Parallel, delayed
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn import svm
+import noisereduce as nr
 
 import cv2
 import subprocess
@@ -21,14 +22,36 @@ balanced_meta = load_csv("google_audioset_meta/balanced_train_segments.csv")
 ontology = load_ontology()
 
 # Load in a dataset and perform feature extraction
-# classes = ["hammer", "drill"]
-classes = ['hammer']
+classes = ["hammer", "drill"]
+# classes = ['hammer']
 labels = [get_label_id_from_name(ontology, cl) for cl in classes]
 meta = filter_labels(balanced_meta, labels)
 audio = load_dataset("data/balanced/", meta)
 metadata = [audio[i][0] for i in range(len(audio))]
 data = [np.array(audio[i][1].set_channels(1).get_array_of_samples()) for i in range(len(audio))]
+data = [np.array([float(f) for f in d]) for d in data]
 freqs = [int(mediainfo("data/balanced/" + item["ytid"] + ".m4a")['sample_rate']) for item in metadata]
+
+print("Filtering Noise")
+green_noise = np.array(AudioSegment.from_file("green_noise.m4a").set_channels(1).get_array_of_samples())
+green_noise = np.array([float(f) for f in green_noise])
+data = [nr.reduce_noise(data[i], green_noise, prop_decrease=0.25) for i in range(len(data))]
+
+# green_noise = AudioSegment.from_file("green_noise.m4a")
+# sample_width = green_noise.sample_width
+# frame_rate = green_noise.frame_rate
+# green_noise = green_noise.set_channels(1).get_array_of_samples()
+# green_noise = np.array([float(i) for i in green_noise])
+# data_0 = np.array([float(i) for i in data[0]])
+# filtered = nr.reduce_noise(data_0, green_noise)
+# writer = wave.open("filtered.wav", mode="wb")
+# writer.setnchannels(1)
+# writer.setsampwidth(sample_width)
+# writer.setframerate(frame_rate)
+# writer.writeframes(filtered)
+# writer.close()
+
+print("Calculating stfts")
 for item in metadata:
     item['path'] = "data/balanced/" + item["ytid"] + ".m4a"
 stfts = [stft(data[i], fs=freqs[i], nperseg=512, nfft=1024) for i in range(len(data))]
@@ -122,15 +145,15 @@ def makevid(meta, labelling, h_times, length):
     res = subprocess.run(command, capture_output=True)
     os.remove(temppath)
 
-# makevid(metadata[i], bin_xvals[i], hist_times[i], times[i][-1])
-for i in range(len(metadata)):
-    makevid(metadata[i], bin_xvals[i], hist_times[i], times[i][-1])
+# # makevid(metadata[i], bin_xvals[i], hist_times[i], times[i][-1])
+# for i in range(len(metadata)):
+#     makevid(metadata[i], bin_xvals[i], hist_times[i], times[i][-1])
 
-stop
+# stop
 
 # Train svm
-test_Cs = [2**i for i in range(-7, 15)] # paper uses range(-7, 7)
-test_gammas = [2**i for i in range(-7, 15)] # paper uses range(-7, 7)
+test_Cs = [2**i for i in range(20, 0, -1)] # paper uses range(-7, 7)
+test_gammas = [2**i for i in range(10, 0, -1)] # paper uses range(-7, 7)
 
 # Hold a certian percent of each class to become the holdout set
 train_percent = 0.7
@@ -150,45 +173,52 @@ X_train = np.concatenate([hist_xvals[idx] for idx in train_idxs])
 X_holdout = np.concatenate([hist_xvals[idx] for idx in holdout_idxs])
 
 # Fit to all test_Cs and test_gammas for a radial basis kernel SVM
-clfs = []
-for C in test_Cs:
-    temp = []
-    for gamma in test_gammas:
-        print("Training SVM (C = %s, gamma = %s)" % (str(C), str(gamma)))
-        clf = svm.SVC(C=C, kernel="rbf", gamma=gamma)
-        clf.fit(X_train, y_train)
-        temp.append(clf)
-    clfs.append(temp)
-print()
+def train_svm(params):
+    c, gamma = params
+    clf = svm.SVC(C=c, kernel="rbf", gamma=gamma)
+    clf.fit(X_train, y_train)
+    return (c, gamma, clf)
+svm_params = [(c, gamma) for c in test_Cs for gamma in test_gammas]
+trained = Parallel(n_jobs=-1, verbose=50)(delayed(train_svm)(p) for p in svm_params)
 
-# Determine the best C and gamma for a radial basis kernel
-prob_errs = []
-for i in range(len(test_Cs)):
-    temp = []
-    for j in range(len(test_gammas)):
-        print("Error (C = %s, gamma = %s): " % (str(test_Cs[i]), str(test_gammas[j])), end="")
-        prob_err = 1 - clfs[i][j].score(X_holdout, y_holdout)
-        print(prob_err)
-        temp.append(prob_err)
-    prob_errs.append(temp)
-
-min_err = min([min(temp) for temp in prob_errs])
+def score_svm(params):
+    c, gamma, clf = params
+    error = 1 - clf.score(X_holdout, y_holdout)
+    return (c, gamma, clf, error)
+scored = Parallel(n_jobs=-1, verbose=50)(delayed(score_svm)(p) for p in trained)
 
 min_idx = None
-for (i, temp) in enumerate(prob_errs):
-    if min_err in temp:
-        min_idx = (i, temp.index(min_err))
-        break
+for i in range(len(scored)):
+    if min_idx is None:
+        min_idx = i
+    elif scored[i][3] < scored[min_idx][3]:
+        min_idx = i
 
-print()
+min_err = scored[min_idx][3]
+
 print("Minimum error:", min_err)
 print("Minimum index:", min_idx)
 
-best_C = test_Cs[min_idx[0]]
-best_gamma = test_gammas[min_idx[1]]
+best_C = scored[min_idx][0]
+best_gamma = scored[min_idx][1]
 
 print("Best C:", best_C)
 print("Best gamma:", best_gamma)
+
+scored_2d = []
+for i in range(len(test_Cs)):
+    temp = []
+    for j in range(len(test_gammas)):
+        this_c = test_Cs[i]
+        this_gamma = test_gammas[j]
+        for el in scored:
+            c, gamma, clf, error = el
+            if this_c == c and this_gamma == gamma:
+                temp.append((c, gamma, clf, error))
+                break
+    scored_2d.append(temp)
+
+prob_errs = [[el[3] for el in temp] for temp in scored_2d]
 
 def plot_errs(prob_errs):
     plt.pcolormesh(np.array(prob_errs), shading="auto")
@@ -196,7 +226,7 @@ def plot_errs(prob_errs):
     plt.ylabel("C")
     plt.yticks([i + 0.5 for i in range(len(test_Cs))], [test_Cs[i] for i in range(len(test_Cs))])
     plt.xlabel("Gamma")
-    plt.xticks([i + 0.5 for i in range(len(test_Cs))], [test_Cs[i] for i in range(len(test_Cs))], rotation ='vertical')
+    plt.xticks([i + 0.5 for i in range(len(test_gammas))], [test_gammas[i] for i in range(len(test_gammas))], rotation ='vertical')
     plt.show()
 
 plot_errs(prob_errs)

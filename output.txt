@@ -1,0 +1,434 @@
+
+#!/usr/bin/python...
+WARNING: data/balanced/06PzXIqzQXM.m4a was not found
+WARNING: data/balanced/0R8NB5yxmMk.m4a was not found
+WARNING: data/balanced/6EMOL2FQLkk.m4a was not found
+WARNING: data/balanced/782irv2y6W0.m4a was not found
+WARNING: data/balanced/A3Li869kKPU.m4a was not found
+WARNING: data/balanced/BtAhd1y-41o.m4a was not found
+WARNING: data/balanced/DbUJsbGLJUo.m4a was not found
+WARNING: data/balanced/E6050fTGcUY.m4a was not found
+WARNING: data/balanced/GgDUr88YCDg.m4a was not found
+WARNING: data/balanced/Jm6KScwr0NE.m4a was not found
+WARNING: data/balanced/LGpxOU75n4c.m4a was not found
+WARNING: data/balanced/MLXtl8KUEgE.m4a was not found
+WARNING: data/balanced/MX7d8HjoHqI.m4a was not found
+WARNING: data/balanced/PqicZqrdh0M.m4a was not found
+WARNING: data/balanced/QnKuwMUYhIo.m4a was not found
+WARNING: data/balanced/VKzsN75TnqE.m4a was not found
+WARNING: data/balanced/WsLoE1uWfMs.m4a was not found
+WARNING: data/balanced/ZDlbmp_qaa8.m4a was not found
+WARNING: data/balanced/ZQZmQHNL9Tk.m4a was not found
+WARNING: data/balanced/ZuD1jCNlTNw.m4a was not found
+WARNING: data/balanced/gGYIXl2u47w.m4a was not found
+WARNING: data/balanced/ggOYjrzPNuQ.m4a was not found
+WARNING: data/balanced/j-2zFMU1PJw.m4a was not found
+WARNING: data/balanced/mPqj688FJLY.m4a was not found
+WARNING: data/balanced/oq4h6LGyDQ8.m4a was not found
+WARNING: data/balanced/qW8zo5ib1nQ.m4a was not found
+WARNING: data/balanced/qwlKkrMj7CQ.m4a was not found
+WARNING: data/balanced/rJPgaJngJJA.m4a was not found
+WARNING: data/balanced/rlebZNXxcXU.m4a was not found
+WARNING: data/balanced/sjrENY6wZm8.m4a was not found
+WARNING: data/balanced/uAERJnfcdJ4.m4a was not found
+WARNING: data/balanced/uJxQvCxpjpU.m4a was not found
+Running PCA
+Running K-means
+Training SVM (C = 0.0078125, gamma = 0.0078125)
+Training SVM (C = 0.0078125, gamma = 0.015625)
+Training SVM (C = 0.0078125, gamma = 0.03125)
+Training SVM (C = 0.0078125, gamma = 0.0625)
+Training SVM (C = 0.0078125, gamma = 0.125)
+Training SVM (C = 0.0078125, gamma = 0.25)
+Training SVM (C = 0.0078125, gamma = 0.5)
+Training SVM (C = 0.0078125, gamma = 1)
+Training SVM (C = 0.0078125, gamma = 2)
+Training SVM (C = 0.0078125, gamma = 4)
+Training SVM (C = 0.0078125, gamma = 8)
+Training SVM (C = 0.0078125, gamma = 16)
+Training SVM (C = 0.0078125, gamma = 32)
+Training SVM (C = 0.0078125, gamma = 64)
+Training SVM (C = 0.015625, gamma = 0.0078125)
+Training SVM (C = 0.015625, gamma = 0.015625)
+Training SVM (C = 0.015625, gamma = 0.03125)
+Training SVM (C = 0.015625, gamma = 0.0625)
+Training SVM (C = 0.015625, gamma = 0.125)
+Training SVM (C = 0.015625, gamma = 0.25)
+Training SVM (C = 0.015625, gamma = 0.5)
+Training SVM (C = 0.015625, gamma = 1)
+Training SVM (C = 0.015625, gamma = 2)
+Training SVM (C = 0.015625, gamma = 4)
+Training SVM (C = 0.015625, gamma = 8)
+Training SVM (C = 0.015625, gamma = 16)
+Training SVM (C = 0.015625, gamma = 32)
+Training SVM (C = 0.015625, gamma = 64)
+Training SVM (C = 0.03125, gamma = 0.0078125)
+Training SVM (C = 0.03125, gamma = 0.015625)
+Training SVM (C = 0.03125, gamma = 0.03125)
+Training SVM (C = 0.03125, gamma = 0.0625)
+Training SVM (C = 0.03125, gamma = 0.125)
+Training SVM (C = 0.03125, gamma = 0.25)
+Training SVM (C = 0.03125, gamma = 0.5)
+Training SVM (C = 0.03125, gamma = 1)
+Training SVM (C = 0.03125, gamma = 2)
+Training SVM (C = 0.03125, gamma = 4)
+Training SVM (C = 0.03125, gamma = 8)
+Training SVM (C = 0.03125, gamma = 16)
+Training SVM (C = 0.03125, gamma = 32)
+Training SVM (C = 0.03125, gamma = 64)
+Training SVM (C = 0.0625, gamma = 0.0078125)
+Training SVM (C = 0.0625, gamma = 0.015625)
+Training SVM (C = 0.0625, gamma = 0.03125)
+Training SVM (C = 0.0625, gamma = 0.0625)
+Training SVM (C = 0.0625, gamma = 0.125)
+Training SVM (C = 0.0625, gamma = 0.25)
+Training SVM (C = 0.0625, gamma = 0.5)
+Training SVM (C = 0.0625, gamma = 1)
+Training SVM (C = 0.0625, gamma = 2)
+Training SVM (C = 0.0625, gamma = 4)
+Training SVM (C = 0.0625, gamma = 8)
+Training SVM (C = 0.0625, gamma = 16)
+Training SVM (C = 0.0625, gamma = 32)
+Training SVM (C = 0.0625, gamma = 64)
+Training SVM (C = 0.125, gamma = 0.0078125)
+Training SVM (C = 0.125, gamma = 0.015625)
+Training SVM (C = 0.125, gamma = 0.03125)
+Training SVM (C = 0.125, gamma = 0.0625)
+Training SVM (C = 0.125, gamma = 0.125)
+Training SVM (C = 0.125, gamma = 0.25)
+Training SVM (C = 0.125, gamma = 0.5)
+Training SVM (C = 0.125, gamma = 1)
+Training SVM (C = 0.125, gamma = 2)
+Training SVM (C = 0.125, gamma = 4)
+Training SVM (C = 0.125, gamma = 8)
+Training SVM (C = 0.125, gamma = 16)
+Training SVM (C = 0.125, gamma = 32)
+Training SVM (C = 0.125, gamma = 64)
+Training SVM (C = 0.25, gamma = 0.0078125)
+Training SVM (C = 0.25, gamma = 0.015625)
+Training SVM (C = 0.25, gamma = 0.03125)
+Training SVM (C = 0.25, gamma = 0.0625)
+Training SVM (C = 0.25, gamma = 0.125)
+Training SVM (C = 0.25, gamma = 0.25)
+Training SVM (C = 0.25, gamma = 0.5)
+Training SVM (C = 0.25, gamma = 1)
+Training SVM (C = 0.25, gamma = 2)
+Training SVM (C = 0.25, gamma = 4)
+Training SVM (C = 0.25, gamma = 8)
+Training SVM (C = 0.25, gamma = 16)
+Training SVM (C = 0.25, gamma = 32)
+Training SVM (C = 0.25, gamma = 64)
+Training SVM (C = 0.5, gamma = 0.0078125)
+Training SVM (C = 0.5, gamma = 0.015625)
+Training SVM (C = 0.5, gamma = 0.03125)
+Training SVM (C = 0.5, gamma = 0.0625)
+Training SVM (C = 0.5, gamma = 0.125)
+Training SVM (C = 0.5, gamma = 0.25)
+Training SVM (C = 0.5, gamma = 0.5)
+Training SVM (C = 0.5, gamma = 1)
+Training SVM (C = 0.5, gamma = 2)
+Training SVM (C = 0.5, gamma = 4)
+Training SVM (C = 0.5, gamma = 8)
+Training SVM (C = 0.5, gamma = 16)
+Training SVM (C = 0.5, gamma = 32)
+Training SVM (C = 0.5, gamma = 64)
+Training SVM (C = 1, gamma = 0.0078125)
+Training SVM (C = 1, gamma = 0.015625)
+Training SVM (C = 1, gamma = 0.03125)
+Training SVM (C = 1, gamma = 0.0625)
+Training SVM (C = 1, gamma = 0.125)
+Training SVM (C = 1, gamma = 0.25)
+Training SVM (C = 1, gamma = 0.5)
+Training SVM (C = 1, gamma = 1)
+Training SVM (C = 1, gamma = 2)
+Training SVM (C = 1, gamma = 4)
+Training SVM (C = 1, gamma = 8)
+Training SVM (C = 1, gamma = 16)
+Training SVM (C = 1, gamma = 32)
+Training SVM (C = 1, gamma = 64)
+Training SVM (C = 2, gamma = 0.0078125)
+Training SVM (C = 2, gamma = 0.015625)
+Training SVM (C = 2, gamma = 0.03125)
+Training SVM (C = 2, gamma = 0.0625)
+Training SVM (C = 2, gamma = 0.125)
+Training SVM (C = 2, gamma = 0.25)
+Training SVM (C = 2, gamma = 0.5)
+Training SVM (C = 2, gamma = 1)
+Training SVM (C = 2, gamma = 2)
+Training SVM (C = 2, gamma = 4)
+Training SVM (C = 2, gamma = 8)
+Training SVM (C = 2, gamma = 16)
+Training SVM (C = 2, gamma = 32)
+Training SVM (C = 2, gamma = 64)
+Training SVM (C = 4, gamma = 0.0078125)
+Training SVM (C = 4, gamma = 0.015625)
+Training SVM (C = 4, gamma = 0.03125)
+Training SVM (C = 4, gamma = 0.0625)
+Training SVM (C = 4, gamma = 0.125)
+Training SVM (C = 4, gamma = 0.25)
+Training SVM (C = 4, gamma = 0.5)
+Training SVM (C = 4, gamma = 1)
+Training SVM (C = 4, gamma = 2)
+Training SVM (C = 4, gamma = 4)
+Training SVM (C = 4, gamma = 8)
+Training SVM (C = 4, gamma = 16)
+Training SVM (C = 4, gamma = 32)
+Training SVM (C = 4, gamma = 64)
+Training SVM (C = 8, gamma = 0.0078125)
+Training SVM (C = 8, gamma = 0.015625)
+Training SVM (C = 8, gamma = 0.03125)
+Training SVM (C = 8, gamma = 0.0625)
+Training SVM (C = 8, gamma = 0.125)
+Training SVM (C = 8, gamma = 0.25)
+Training SVM (C = 8, gamma = 0.5)
+Training SVM (C = 8, gamma = 1)
+Training SVM (C = 8, gamma = 2)
+Training SVM (C = 8, gamma = 4)
+Training SVM (C = 8, gamma = 8)
+Training SVM (C = 8, gamma = 16)
+Training SVM (C = 8, gamma = 32)
+Training SVM (C = 8, gamma = 64)
+Training SVM (C = 16, gamma = 0.0078125)
+Training SVM (C = 16, gamma = 0.015625)
+Training SVM (C = 16, gamma = 0.03125)
+Training SVM (C = 16, gamma = 0.0625)
+Training SVM (C = 16, gamma = 0.125)
+Training SVM (C = 16, gamma = 0.25)
+Training SVM (C = 16, gamma = 0.5)
+Training SVM (C = 16, gamma = 1)
+Training SVM (C = 16, gamma = 2)
+Training SVM (C = 16, gamma = 4)
+Training SVM (C = 16, gamma = 8)
+Training SVM (C = 16, gamma = 16)
+Training SVM (C = 16, gamma = 32)
+Training SVM (C = 16, gamma = 64)
+Training SVM (C = 32, gamma = 0.0078125)
+Training SVM (C = 32, gamma = 0.015625)
+Training SVM (C = 32, gamma = 0.03125)
+Training SVM (C = 32, gamma = 0.0625)
+Training SVM (C = 32, gamma = 0.125)
+Training SVM (C = 32, gamma = 0.25)
+Training SVM (C = 32, gamma = 0.5)
+Training SVM (C = 32, gamma = 1)
+Training SVM (C = 32, gamma = 2)
+Training SVM (C = 32, gamma = 4)
+Training SVM (C = 32, gamma = 8)
+Training SVM (C = 32, gamma = 16)
+Training SVM (C = 32, gamma = 32)
+Training SVM (C = 32, gamma = 64)
+Training SVM (C = 64, gamma = 0.0078125)
+Training SVM (C = 64, gamma = 0.015625)
+Training SVM (C = 64, gamma = 0.03125)
+Training SVM (C = 64, gamma = 0.0625)
+Training SVM (C = 64, gamma = 0.125)
+Training SVM (C = 64, gamma = 0.25)
+Training SVM (C = 64, gamma = 0.5)
+Training SVM (C = 64, gamma = 1)
+Training SVM (C = 64, gamma = 2)
+Training SVM (C = 64, gamma = 4)
+Training SVM (C = 64, gamma = 8)
+Training SVM (C = 64, gamma = 16)
+Training SVM (C = 64, gamma = 32)
+Training SVM (C = 64, gamma = 64)
+
+Error (C = 0.0078125, gamma = 0.0078125): 0.4814814814814815
+Error (C = 0.0078125, gamma = 0.015625): 0.4814814814814815
+Error (C = 0.0078125, gamma = 0.03125): 0.4814814814814815
+Error (C = 0.0078125, gamma = 0.0625): 0.4814814814814815
+Error (C = 0.0078125, gamma = 0.125): 0.3485838779956427
+Error (C = 0.0078125, gamma = 0.25): 0.3507625272331155
+Error (C = 0.0078125, gamma = 0.5): 0.35112563543936093
+Error (C = 0.0078125, gamma = 1): 0.35112563543936093
+Error (C = 0.0078125, gamma = 2): 0.3500363108206246
+Error (C = 0.0078125, gamma = 4): 0.3464052287581699
+Error (C = 0.0078125, gamma = 8): 0.34713144517066086
+Error (C = 0.0078125, gamma = 16): 0.34894698620188813
+Error (C = 0.0078125, gamma = 32): 0.35148874364560634
+Error (C = 0.0078125, gamma = 64): 0.3533042846768337
+Error (C = 0.015625, gamma = 0.0078125): 0.4814814814814815
+Error (C = 0.015625, gamma = 0.015625): 0.4814814814814815
+Error (C = 0.015625, gamma = 0.03125): 0.4814814814814815
+Error (C = 0.015625, gamma = 0.0625): 0.3478576615831518
+Error (C = 0.015625, gamma = 0.125): 0.3507625272331155
+Error (C = 0.015625, gamma = 0.25): 0.35112563543936093
+Error (C = 0.015625, gamma = 0.5): 0.35148874364560634
+Error (C = 0.015625, gamma = 1): 0.35221496005809727
+Error (C = 0.015625, gamma = 2): 0.3580246913580247
+Error (C = 0.015625, gamma = 4): 0.35584604212055193
+Error (C = 0.015625, gamma = 8): 0.35039941902687
+Error (C = 0.015625, gamma = 16): 0.3485838779956427
+Error (C = 0.015625, gamma = 32): 0.35148874364560634
+Error (C = 0.015625, gamma = 64): 0.3533042846768337
+Error (C = 0.03125, gamma = 0.0078125): 0.4814814814814815
+Error (C = 0.03125, gamma = 0.015625): 0.4814814814814815
+Error (C = 0.03125, gamma = 0.03125): 0.3478576615831518
+Error (C = 0.03125, gamma = 0.0625): 0.35112563543936093
+Error (C = 0.03125, gamma = 0.125): 0.35148874364560634
+Error (C = 0.03125, gamma = 0.25): 0.35185185185185186
+Error (C = 0.03125, gamma = 0.5): 0.35657225853304286
+Error (C = 0.03125, gamma = 1): 0.3620188816267248
+Error (C = 0.03125, gamma = 2): 0.3638344226579521
+Error (C = 0.03125, gamma = 4): 0.3638344226579521
+Error (C = 0.03125, gamma = 8): 0.36056644880174293
+Error (C = 0.03125, gamma = 16): 0.355119825708061
+Error (C = 0.03125, gamma = 32): 0.3529411764705882
+Error (C = 0.03125, gamma = 64): 0.35185185185185186
+Error (C = 0.0625, gamma = 0.0078125): 0.4814814814814815
+Error (C = 0.0625, gamma = 0.015625): 0.34749455337690627
+Error (C = 0.0625, gamma = 0.03125): 0.3525780682643428
+Error (C = 0.0625, gamma = 0.0625): 0.35148874364560634
+Error (C = 0.0625, gamma = 0.125): 0.3529411764705882
+Error (C = 0.0625, gamma = 0.25): 0.3569353667392883
+Error (C = 0.0625, gamma = 0.5): 0.3641975308641975
+Error (C = 0.0625, gamma = 1): 0.3638344226579521
+Error (C = 0.0625, gamma = 2): 0.36347131445170666
+Error (C = 0.0625, gamma = 4): 0.36310820624546114
+Error (C = 0.0625, gamma = 8): 0.3620188816267248
+Error (C = 0.0625, gamma = 16): 0.3554829339143064
+Error (C = 0.0625, gamma = 32): 0.35439360929557007
+Error (C = 0.0625, gamma = 64): 0.3547567175018156
+Error (C = 0.125, gamma = 0.0078125): 0.34749455337690627
+Error (C = 0.125, gamma = 0.015625): 0.3525780682643428
+Error (C = 0.125, gamma = 0.03125): 0.35148874364560634
+Error (C = 0.125, gamma = 0.0625): 0.3529411764705882
+Error (C = 0.125, gamma = 0.125): 0.35838779956427014
+Error (C = 0.125, gamma = 0.25): 0.36274509803921573
+Error (C = 0.125, gamma = 0.5): 0.36347131445170666
+Error (C = 0.125, gamma = 1): 0.3616557734204793
+Error (C = 0.125, gamma = 2): 0.36274509803921573
+Error (C = 0.125, gamma = 4): 0.36056644880174293
+Error (C = 0.125, gamma = 8): 0.3638344226579521
+Error (C = 0.125, gamma = 16): 0.36274509803921573
+Error (C = 0.125, gamma = 32): 0.3569353667392883
+Error (C = 0.125, gamma = 64): 0.3529411764705882
+Error (C = 0.25, gamma = 0.0078125): 0.3525780682643428
+Error (C = 0.25, gamma = 0.015625): 0.3525780682643428
+Error (C = 0.25, gamma = 0.03125): 0.3529411764705882
+Error (C = 0.25, gamma = 0.0625): 0.35911401597676107
+Error (C = 0.25, gamma = 0.125): 0.36347131445170666
+Error (C = 0.25, gamma = 0.25): 0.3663761801016703
+Error (C = 0.25, gamma = 0.5): 0.36056644880174293
+Error (C = 0.25, gamma = 1): 0.36129266521423387
+Error (C = 0.25, gamma = 2): 0.3594771241830066
+Error (C = 0.25, gamma = 4): 0.36129266521423387
+Error (C = 0.25, gamma = 8): 0.36129266521423387
+Error (C = 0.25, gamma = 16): 0.3623819898329702
+Error (C = 0.25, gamma = 32): 0.36528685548293394
+Error (C = 0.25, gamma = 64): 0.35911401597676107
+Error (C = 0.5, gamma = 0.0078125): 0.3525780682643428
+Error (C = 0.5, gamma = 0.015625): 0.3529411764705882
+Error (C = 0.5, gamma = 0.03125): 0.3594771241830066
+Error (C = 0.5, gamma = 0.0625): 0.36601307189542487
+Error (C = 0.5, gamma = 0.125): 0.36528685548293394
+Error (C = 0.5, gamma = 0.25): 0.36129266521423387
+Error (C = 0.5, gamma = 0.5): 0.35838779956427014
+Error (C = 0.5, gamma = 1): 0.35838779956427014
+Error (C = 0.5, gamma = 2): 0.35875090777051566
+Error (C = 0.5, gamma = 4): 0.35911401597676107
+Error (C = 0.5, gamma = 8): 0.35911401597676107
+Error (C = 0.5, gamma = 16): 0.36274509803921573
+Error (C = 0.5, gamma = 32): 0.3641975308641975
+Error (C = 0.5, gamma = 64): 0.359840232389252
+Error (C = 1, gamma = 0.0078125): 0.3533042846768337
+Error (C = 1, gamma = 0.015625): 0.3594771241830066
+Error (C = 1, gamma = 0.03125): 0.3671023965141612
+Error (C = 1, gamma = 0.0625): 0.36564996368917935
+Error (C = 1, gamma = 0.125): 0.3663761801016703
+Error (C = 1, gamma = 0.25): 0.3580246913580247
+Error (C = 1, gamma = 0.5): 0.35875090777051566
+Error (C = 1, gamma = 1): 0.3580246913580247
+Error (C = 1, gamma = 2): 0.364560639070443
+Error (C = 1, gamma = 4): 0.3576615831517792
+Error (C = 1, gamma = 8): 0.3620188816267248
+Error (C = 1, gamma = 16): 0.3580246913580247
+Error (C = 1, gamma = 32): 0.3572984749455338
+Error (C = 1, gamma = 64): 0.3384168482207698
+Error (C = 2, gamma = 0.0078125): 0.3594771241830066
+Error (C = 2, gamma = 0.015625): 0.3671023965141612
+Error (C = 2, gamma = 0.03125): 0.3667392883079158
+Error (C = 2, gamma = 0.0625): 0.36601307189542487
+Error (C = 2, gamma = 0.125): 0.36092955700798834
+Error (C = 2, gamma = 0.25): 0.35657225853304286
+Error (C = 2, gamma = 0.5): 0.3525780682643428
+Error (C = 2, gamma = 1): 0.3594771241830066
+Error (C = 2, gamma = 2): 0.36310820624546114
+Error (C = 2, gamma = 4): 0.3685548293391431
+Error (C = 2, gamma = 8): 0.3580246913580247
+Error (C = 2, gamma = 16): 0.35911401597676107
+Error (C = 2, gamma = 32): 0.3384168482207698
+Error (C = 2, gamma = 64): 0.3387799564270153
+Error (C = 4, gamma = 0.0078125): 0.3671023965141612
+Error (C = 4, gamma = 0.015625): 0.3671023965141612
+Error (C = 4, gamma = 0.03125): 0.36782861292665214
+Error (C = 4, gamma = 0.0625): 0.36564996368917935
+Error (C = 4, gamma = 0.125): 0.3572984749455338
+Error (C = 4, gamma = 0.25): 0.3529411764705882
+Error (C = 4, gamma = 0.5): 0.3576615831517792
+Error (C = 4, gamma = 1): 0.36310820624546114
+Error (C = 4, gamma = 2): 0.3671023965141612
+Error (C = 4, gamma = 4): 0.3721859114015976
+Error (C = 4, gamma = 8): 0.37291212781408856
+Error (C = 4, gamma = 16): 0.3478576615831518
+Error (C = 4, gamma = 32): 0.3336964415395788
+Error (C = 4, gamma = 64): 0.33986928104575165
+Error (C = 8, gamma = 0.0078125): 0.3671023965141612
+Error (C = 8, gamma = 0.015625): 0.37073347857661587
+Error (C = 8, gamma = 0.03125): 0.3685548293391431
+Error (C = 8, gamma = 0.0625): 0.36129266521423387
+Error (C = 8, gamma = 0.125): 0.3529411764705882
+Error (C = 8, gamma = 0.25): 0.3525780682643428
+Error (C = 8, gamma = 0.5): 0.3602033405954974
+Error (C = 8, gamma = 1): 0.36819172113289755
+Error (C = 8, gamma = 2): 0.37000726216412494
+Error (C = 8, gamma = 4): 0.37291212781408856
+Error (C = 8, gamma = 8): 0.3696441539578794
+Error (C = 8, gamma = 16): 0.3344226579520697
+Error (C = 8, gamma = 32): 0.33551198257080606
+Error (C = 8, gamma = 64): 0.3395061728395061
+Error (C = 16, gamma = 0.0078125): 0.3685548293391431
+Error (C = 16, gamma = 0.015625): 0.3736383442265795
+Error (C = 16, gamma = 0.03125): 0.364560639070443
+Error (C = 16, gamma = 0.0625): 0.3569353667392883
+Error (C = 16, gamma = 0.125): 0.3525780682643428
+Error (C = 16, gamma = 0.25): 0.3580246913580247
+Error (C = 16, gamma = 0.5): 0.3649237472766884
+Error (C = 16, gamma = 1): 0.3721859114015976
+Error (C = 16, gamma = 2): 0.3714596949891068
+Error (C = 16, gamma = 4): 0.36746550472040673
+Error (C = 16, gamma = 8): 0.3649237472766884
+Error (C = 16, gamma = 16): 0.3336964415395788
+Error (C = 16, gamma = 32): 0.3405954974582426
+Error (C = 16, gamma = 64): 0.3482207697893972
+Error (C = 32, gamma = 0.0078125): 0.37254901960784315
+Error (C = 32, gamma = 0.015625): 0.3685548293391431
+Error (C = 32, gamma = 0.03125): 0.36129266521423387
+Error (C = 32, gamma = 0.0625): 0.3525780682643428
+Error (C = 32, gamma = 0.125): 0.3525780682643428
+Error (C = 32, gamma = 0.25): 0.35584604212055193
+Error (C = 32, gamma = 0.5): 0.36782861292665214
+Error (C = 32, gamma = 1): 0.37037037037037035
+Error (C = 32, gamma = 2): 0.3732752360203341
+Error (C = 32, gamma = 4): 0.3616557734204793
+Error (C = 32, gamma = 8): 0.35221496005809727
+Error (C = 32, gamma = 16): 0.3318809005083515
+Error (C = 32, gamma = 32): 0.3438634713144517
+Error (C = 32, gamma = 64): 0.34749455337690627
+Error (C = 64, gamma = 0.0078125): 0.3736383442265795
+Error (C = 64, gamma = 0.015625): 0.364560639070443
+Error (C = 64, gamma = 0.03125): 0.35620915032679734
+Error (C = 64, gamma = 0.0625): 0.35221496005809727
+Error (C = 64, gamma = 0.125): 0.35439360929557007
+Error (C = 64, gamma = 0.25): 0.3641975308641975
+Error (C = 64, gamma = 0.5): 0.37037037037037035
+Error (C = 64, gamma = 1): 0.3710965867828613
+Error (C = 64, gamma = 2): 0.36564996368917935
+Error (C = 64, gamma = 4): 0.359840232389252
+Error (C = 64, gamma = 8): 0.34713144517066086
+Error (C = 64, gamma = 16): 0.3340595497458243
+Error (C = 64, gamma = 32): 0.34749455337690627
+Error (C = 64, gamma = 64): 0.3478576615831518
+
+Minimum error: 0.3318809005083515
+Minimum index: (12, 11)
+Best C: 32
+Best gamma: 16
