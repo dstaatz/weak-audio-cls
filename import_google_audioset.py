@@ -148,7 +148,7 @@ def filter_labels(meta, labels):
             if len(list(set(labels) & set(temp))) > 0:
                 rt.append(d)
         else: # unlabeled
-            pass
+            rt.append(d)
     return rt
 
 # Load the dataset into memory, shows warning for missing files
@@ -197,11 +197,11 @@ if __name__ == "__main__":
 
     ontology = load_ontology()
 
-    # classes = ["hammer", "drill", "noise"]
-    # labels = [get_label_id_from_name(ontology, cl) for cl in classes]
-    # download_meta_serial(google_eval, labels, 'data/eval')
-    # download_meta_serial(google_balanced, labels, 'data/balanced')
-    # download_meta_serial(google_unbalanced, labels, 'data/unbalanced')
+    classes = ["hammer", "drill", "noise"]
+    labels = [get_label_id_from_name(ontology, cl) for cl in classes]
+    download_meta_serial(google_eval, labels, 'data/eval')
+    download_meta_serial(google_balanced, labels, 'data/balanced')
+    download_meta_serial(google_unbalanced, labels, 'data/unbalanced')
 
     classes = [
         "Alarm",

@@ -18,19 +18,14 @@ import subprocess
 
 ontology = load_ontology()
 
-# Select classes
-classes = ["hammer", "drill", "noise"]
-# classes = ["hammer"]
-labels = [get_label_id_from_name(ontology, cl) for cl in classes]
-
-def getdata(splittype):
+def getdata(splittype, labels):
 
     # Google
     if splittype.lower() == "google-balanced":
-        metafile = "google_audioset_meta/eval_segments.csv"
+        metafile = "google_audioset_meta/balanced_train_segments.csv"
         folder = "data/google/balanced/"
     elif splittype.lower() == "google-eval":
-        metafile = "google_audioset_meta/balanced_train_segments.csv"
+        metafile = "google_audioset_meta/eval_segments.csv"
         folder = "data/google/eval/"
     elif splittype.lower() == "google-unbalanced":
         metafile = "google_audioset_meta/unbalanced_train_segments.csv"
@@ -65,14 +60,19 @@ def getdata(splittype):
     stfts = [stft(data[i], fs=freqs[i], nperseg=512, nfft=1024) for i in range(len(data))]
     return metadata, stfts
 
-metadata, stfts = getdata("google-balanced")
-# metadata, stfts = getdata("google-eval")
-# metadata, stfts = getdata("google-unbalanced")
-# metadata, stfts = getdata("dcase-weak")
-# metadata, stfts = getdata("dcase-unlabel")
-# metadata, stfts = getdata("dcase-eval")
-# metadata, stfts = getdata("dcase-test")
-# metadata, stfts = getdata("dcase-validation")
+dcase_classes = ["Alarm", "Vacuum cleaner"]
+dcase_labels = [get_label_id_from_name(ontology, cl) for cl in dcase_classes]
+dcase_metadata, dcase_stfts = getdata("dcase-weak", dcase_labels)
+
+google_classes = ["noise"]
+google_labels = [get_label_id_from_name(ontology, cl) for cl in google_classes]
+google_metadata, google_stfts = getdata("google-unbalanced", google_labels)
+
+classes = dcase_classes + google_classes
+labels = dcase_labels + google_labels
+metadata = dcase_metadata + google_metadata
+stfts = dcase_stfts + google_stfts
+
 
 def get_yvals(metadata):
     y_labels = []
@@ -94,6 +94,10 @@ def plot_stft(i):
     plt.ylabel("Frequency [Hz]")
     plt.xlabel("Time [sec]")
     plt.show()
+
+# plot_stft(y_labels.index(labels[0]))
+# plot_stft(y_labels.index(labels[1]))
+# plot_stft(y_labels.index(labels[2]))
 
 
 # Do PCA
@@ -185,8 +189,8 @@ if len(classes) == 1:
 else:
     verbose = False
     # Train svm
-    test_Cs = [2**i for i in range(-7, 10)] # paper uses range(-7, 7)
-    test_gammas = [2**i for i in range(-7, 10)] # paper uses range(-7, 7)
+    test_Cs = [2**i for i in range(6, -7, -1)] # paper uses range(-7, 7)
+    test_gammas = [2**i for i in range(6, -7, -1)] # paper uses range(-7, 7)
 
     # Hold a certian percent of each class to become the holdout set
     train_percent = 0.7
