@@ -27,7 +27,8 @@ def get_clip(id, start, stop, folder):
         res = subprocess.run(command, capture_output=True)
         command = ['ffmpeg', '-i', folder + '/temp_{}.m4a'.format(id), '-c', 'copy', folder + '/{}.m4a'.format(id)]
         res = subprocess.run(command, capture_output=True)
-        os.remove(folder + '/temp_{}.m4a'.format(id))
+        if os.path.exists(folder + '/temp_{}.m4a'.format(id)):
+            os.remove(folder + '/temp_{}.m4a'.format(id))
         return 1
 
 # Returns list of dict of labels
@@ -215,9 +216,9 @@ if __name__ == "__main__":
         "Water"
     ]
     labels = [get_label_id_from_name(ontology, cl) for cl in classes]
-    download_meta(dcase_weak, labels, "data/dcase/weak/")
-    download_meta(dcase_eval, labels, "data/dcase/eval/")
-    download_meta(dcase_test, labels, "data/dcase/test/")
-    download_meta(dcase_validation, labels, "data/dcase/validation/")
-    download_meta(dcase_unlabel, labels, "data/dcase/unlabel/")
+    download_meta(dcase_weak, labels, "data/dcase/weak")
+    download_meta(dcase_eval, labels, "data/dcase/eval")
+    download_meta(dcase_test, labels, "data/dcase/test")
+    download_meta(dcase_validation, labels, "data/dcase/validation")
+    download_meta(dcase_unlabel, labels, "data/dcase/unlabel")
 
