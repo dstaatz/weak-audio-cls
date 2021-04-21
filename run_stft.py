@@ -111,28 +111,36 @@ y_labels = get_yvals(metadata)
 
 def plot_stft(i):
     # plot the stft
-    # print(np.abs(stfts[i][2]).min())
-    # print(np.abs(stfts[i][2]).max())
     plt.pcolormesh(stfts[i][1], stfts[i][0], np.abs(stfts[i][2]), vmin=0, vmax=250, shading="auto")
     plt.title("STFT Magnitude of %s" % (metadata[i]["ytid"]))
     plt.ylabel("Frequency [Hz]")
     plt.xlabel("Time [sec]")
-    plt.show()
+    plt.savefig("results/stft_%s.png" % (metadata[i]["ytid"]), format="png")
 
-# plot_stft(y_labels.index(labels[0]))
-# plot_stft(y_labels.index(labels[1]))
-# plot_stft(y_labels.index(labels[2]))
-
+for label in labels:
+    plot_stft(y_labels.index(label))
 
 # Do PCA
 print("Running PCA")
-pca = PCA(n_components=100)
+n_components = 100
+pca = PCA(n_components=n_components)
 xvals = [np.abs(stft[2]).T for stft in stfts]
 # X = np.concatenate([np.abs(stft[2]) for stft in stfts], axis=1)
 X = np.concatenate(xvals, axis=0)
 pca.fit(X)
 t_xvals = [pca.transform(x) for x in xvals]
 t_X = pca.transform(X)
+
+def plot_pca(i):
+    # plot the stft
+    plt.pcolormesh(stfts[i][1], np.arange(0, n_components), t_xvals[i].transpose(), shading="auto")
+    plt.title("PCA of %s" % (metadata[i]["ytid"]))
+    plt.ylabel("Componets")
+    plt.xlabel("Time [sec]")
+    plt.savefig("results/pca_%s.png" % (metadata[i]["ytid"]), format="png")
+
+for label in labels:
+    plot_pca(y_labels.index(label))
 
 # Do K-Means
 print("Running K-means")
@@ -142,6 +150,17 @@ kmeans.fit(t_X)
 onehot = np.eye(n_clusters)
 kt_xvals = [onehot[kmeans.predict(x)] for x in t_xvals]
 # kt_X = onehot[kmeans.predict(t_X)]
+
+def plot_clustering(i):
+    # plot the clusters
+    plt.pcolormesh(stfts[i][1], np.arange(0, n_clusters), kt_xvals[i].transpose(), shading="auto")
+    plt.title("Clustering of %s" % (metadata[i]["ytid"]))
+    plt.ylabel("Clusters")
+    plt.xlabel("Time [sec]")
+    plt.savefig("results/kmeans_%s.png" % (metadata[i]["ytid"]), format="png")
+
+for label in labels:
+    plot_clustering(y_labels.index(label))
 
 timediffs = [(stft[1][1] - stft[1][0]) for stft in stfts]
 timestep = 0.1
@@ -157,6 +176,17 @@ hist_xvals = [np.array([np.mean(h, axis=0) for h in chunks(x, n)]) for x, n in z
 hist_times = [np.array([h[0] for h in chunks(t, n)]) for t, n in zip(times, binsize)] # times where histogram starts
 hist_X = np.concatenate(hist_xvals, axis=0)
 num_segments_per_clip = [hist_xval.shape[0] for hist_xval in hist_xvals]
+
+def plot_clustering_time_bins(i):
+    # plot the clusters
+    plt.pcolormesh(hist_times[i], np.arange(0, n_clusters), hist_xvals[i].transpose(), shading="auto")
+    plt.title("Clustered time bins of %s" % (metadata[i]["ytid"]))
+    plt.ylabel("Clusters")
+    plt.xlabel("Time [sec]")
+    plt.savefig("results/time_bin_%s.png" % (metadata[i]["ytid"]), format="png")
+
+for label in labels:
+    plot_clustering_time_bins(y_labels.index(label))
 
 def to_vectors(stfts):
     times = [stft[1] for stft in stfts]
