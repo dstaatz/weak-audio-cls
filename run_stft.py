@@ -73,6 +73,16 @@ labels = dcase_labels + google_labels
 metadata = dcase_metadata + google_metadata
 stfts = dcase_stfts + google_stfts
 
+# dcase_val_metadata, dcase_val_stfts = getdata("dcase-validation", dcase_labels)
+# google_val_metadata, google_val_stfts = getdata("google-eval", google_labels)
+# val_metata = dcase_val_metadata + google_val_metadata
+# val_stfts = dcase_val_stfts + google_val_stfts
+val_metadata, val_stfts = getdata("dcase-validation", dcase_labels)
+
+google_eval_metadata, google_eval_stfts = getdata("google-eval", google_labels)
+dcase_eval_metadata, dcase_eval_stfts = getdata("dcase-eval", dcase_labels)
+eval_metadata = dcase_eval_metadata + google_eval_metadata
+eval_stfts = dcase_eval_stfts + google_eval_stfts
 
 def get_yvals(metadata):
     y_labels = []
@@ -82,6 +92,20 @@ def get_yvals(metadata):
                 y_labels.append(label)
                 break # If multiple labels are assigned to the same item, just take the first label
     return y_labels
+
+def get_stronglabelling(meta, htime, labels):
+    # assume last label is noise
+    noise = labels[-1]
+    labels = labels[:-1]
+    labelling = np.repeat(noise, len(htime)).astype(object)
+    if 'strong_labels' not in meta:
+        return labelling # assume we have noise class
+    for sl in meta['strong_labels']:
+        if sl[0] in labels:
+            start = np.where(htime <= sl[1])[0][-1]
+            stop = np.where(htime <= sl[2])[0][-1]
+            labelling[start:stop] = sl[0]
+    return labelling
 
 y_labels = get_yvals(metadata)
 
@@ -273,18 +297,36 @@ else:
 
     y_train = np.concatenate([[y_labels[idx] for i in range(num_segments_per_clip[idx])] for idx in range(len(hist_xvals))])
     X_train = np.concatenate(hist_xvals)
-    clf = svm.SVC(C=best_C, kernel="rbf", gamma=best_gamma, class_weight={labels[0]: 1, labels[1]: 1, labels[2]: 2})#, probability=True)
-    clf.fit(X_train, y_train)
 
-    eval_metadata, eval_stfts = getdata('eval')
+    val_vec, val_htimes = to_vectors(val_stfts)
+
+    y_val = np.concatenate([get_stronglabelling(meta, htime, labels) for meta, htime in zip(val_metadata, val_htimes)])
+    X_val = np.concatenate(val_vec)
+
+    def fit_svm(k):
+        # assume noise is last label
+        class_weight = {}
+        for l in labels[:-1]:
+            class_weight[l] = 1
+        class_weight[labels[-1]] = k
+        clf = svm.SVC(C=best_C, kernel="rbf", gamma=best_gamma, class_weight=class_weight)#, probability=True)
+        clf.fit(X_train, y_train)
+        prob_err = 1 - clf.score(X_val, y_val)
+        return clf, prob_err
+
+    kvals = np.linspace(1, 3, 100)
+    res = Parallel(n_jobs=-1, verbose=50)(delayed(fit_svm)(k) for k in kvals)
+    errs = [r[1] for r in res]
+    clf = res[np.argmin(errs)][0]
+
     eval_vec, eval_htimes = to_vectors(eval_stfts)
+    eval_labelling = [get_stronglabelling(meta, htime, labels) for meta, htime in zip(eval_metadata, eval_htimes)]
+
     preds = [clf.predict(v) for v in eval_vec]
-    # probs = [clf.predict_proba(v) for v in eval_vec]
-    # dec_funcs = [clf.decision_function(v) for v in eval_vec]
 
-    testres = [clf.predict(v) for v in hist_xvals]
+    # testres = [clf.predict(v) for v in hist_xvals]
 
-    def makevid(meta, labelling, h_times, length):
+    def makevid(meta, labelling, h_times, length, truth=None):
         outpath = 'results/' + meta['ytid'] + '.mp4'
         temppath = 'results/temp_' + meta['ytid'] + '.mp4'
         vidshape = (30, 30)
@@ -309,6 +351,14 @@ else:
             # img[15:, :10] = (vec[0], vec[0], vec[0])
             # img[15:, 10:20] = (vec[1], vec[1], vec[1])
             # img[15:, 20:] = (vec[2], vec[2], vec[2])
+            if truth is not None:
+                img[15:, :] = (0, 0, 0)
+                if truth[idx] == labels[0]:
+                    img[15:, :10] = (255, 255, 255)
+                elif truth[idx] == labels[1]:
+                    img[15:, 10:20] = (255, 255, 255)
+                else:
+                    img[15:, 20:] = (255, 255, 255)
             video.write(img)
         cv2.destroyAllWindows()
         video.release()
@@ -321,4 +371,8 @@ else:
     # makevid(eval_metadata[0], preds[0], eval_htimes[0], eval_stfts[0][1][-1])
     for i in range(len(eval_metadata)):
         # makevid(eval_metadata[i], probs[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1])
-        makevid(eval_metadata[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1])
+        makevid(eval_metadata[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1], eval_labelling[i])
+
+    allnoise = np.repeat(labels[-1], len(np.concatenate(preds))).astype(object)
+    print(np.mean(np.concatenate(preds) == np.concatenate(eval_labelling)))
+    print(np.mean((allnoise) == np.concatenate(eval_labelling)))

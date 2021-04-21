@@ -6,6 +6,7 @@ import time
 import os
 from scipy.io import wavfile
 from pydub import AudioSegment
+from pydub.exceptions import CouldntDecodeError
 
 def get_clip(id, start, stop, folder):
     if os.path.exists(folder + '/{}.m4a'.format(id)):
@@ -156,15 +157,34 @@ def filter_labels(meta, labels):
 
 # Load the dataset into memory, shows warning for missing files
 def load_dataset(folder, meta):
-    rt = list()
-    for item in meta:
+    # rt = list()
+    # for item in meta:
+    #     path = folder + item["ytid"] + ".m4a"
+    #     try:
+    #         data = AudioSegment.from_file(path)
+    #         rt.append((item, data))
+    #         # print('Loaded {}'.format(path))
+    #     except FileNotFoundError:
+    #         print("WARNING:", path, "was not found")
+    #     except CouldntDecodeError:
+    #         print("WARNING", path, "could not be decoded")
+    # return rt
+    def do_load(item):
         path = folder + item["ytid"] + ".m4a"
         try:
             data = AudioSegment.from_file(path)
-            rt.append((item, data))
+            return (item, data)
+            # print('Loaded {}'.format(path))
         except FileNotFoundError:
             print("WARNING:", path, "was not found")
-    return rt
+            return None
+        except CouldntDecodeError:
+            print("WARNING", path, "could not be decoded")
+            return None
+
+    res = Parallel(n_jobs=-1, verbose=50)(delayed(do_load)(item) for item in meta)
+    res = [r for r in res if r is not None]
+    return res
 
 # Load the dataset into memory, shows warning for missing files
 def load_dataset_wav(folder, meta):
@@ -202,9 +222,9 @@ if __name__ == "__main__":
 
     classes = ["hammer", "drill", "noise"]
     labels = [get_label_id_from_name(ontology, cl) for cl in classes]
-    download_meta(google_eval, labels, 'data/eval')
-    download_meta(google_balanced, labels, 'data/balanced')
-    download_meta(google_unbalanced, labels, 'data/unbalanced')
+    download_meta(google_eval, labels, 'data/google/eval')
+    download_meta(google_balanced, labels, 'data/google/balanced')
+    download_meta(google_unbalanced, labels, 'data/google/unbalanced')
 
     classes = [
         "Alarm",
