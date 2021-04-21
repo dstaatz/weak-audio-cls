@@ -8,11 +8,14 @@ from scipy.io import wavfile
 from pydub import AudioSegment
 
 def get_clip(id, start, stop, folder):
-    print('Downloading {}'.format(id))
+    if os.path.exists(folder + '/{}.m4a'.format(id)):
+        return 0 # already downloaded
+    print('Downloading {} to {}'.format(id, folder))
     command = ["youtube-dl", "-g", "https://www.youtube.com/watch?v={}".format(id)]
     res = subprocess.run(command, capture_output=True)
     url = str(res.stdout).split("\\n")
     if len(url) < 2:
+        # print('{} unavailable'.format(id))
         return -1 # video unavailable
     else:
         url = url[1]
@@ -199,9 +202,9 @@ if __name__ == "__main__":
 
     classes = ["hammer", "drill", "noise"]
     labels = [get_label_id_from_name(ontology, cl) for cl in classes]
-    download_meta_serial(google_eval, labels, 'data/eval')
-    download_meta_serial(google_balanced, labels, 'data/balanced')
-    download_meta_serial(google_unbalanced, labels, 'data/unbalanced')
+    download_meta(google_eval, labels, 'data/eval')
+    download_meta(google_balanced, labels, 'data/balanced')
+    download_meta(google_unbalanced, labels, 'data/unbalanced')
 
     classes = [
         "Alarm",
