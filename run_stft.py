@@ -121,19 +121,19 @@ def makevid(meta, labelling, h_times, length, labels, truth=None):
 if __name__ == '__main__':
     ontology = load_ontology()
 
-    dcase_classes = ["Alarm", "Vacuum cleaner"]
+    # dcase_classes = ["Alarm", "Vacuum cleaner"]
     # dcase_classes = ["Vacuum cleaner"]
-    # dcase_classes = [
-    #     "Alarm",
-    #     "Speech",
-    #     "Dog",
-    #     "Cat",
-    #     "Dishes, pots, and pans",
-    #     "Frying (food)",
-    #     "Electric toothbrush",
-    #     "Vacuum cleaner",
-    #     "Blender",
-    #     "Water"]
+    dcase_classes = [
+        "Alarm",
+        "Speech",
+        "Dog",
+        "Cat",
+        "Dishes, pots, and pans",
+        "Frying (food)",
+        "Electric toothbrush",
+        "Vacuum cleaner",
+        "Blender",
+        "Water"]
     dcase_labels = [get_label_id_from_name(ontology, cl) for cl in dcase_classes]
     dcase_metadata, dcase_stfts = getdata("dcase-weak", dcase_labels)
 
@@ -149,8 +149,10 @@ if __name__ == '__main__':
 
     # parameters:
     n_components = 100
-    timestep = 0.1
-    n_clusters = 7
+    # timestep = 0.1
+    # n_clusters = 7
+    timestep = 1
+    n_clusters = 6
 
     if len(classes) > 1:
         # dcase_val_metadata, dcase_val_stfts = getdata("dcase-validation", dcase_labels)
@@ -480,7 +482,7 @@ if __name__ == '__main__':
         onehot = np.eye(len(labels))
         yvals = np.array([onehot[y] for y in yvals])
 
-        fig = plt.figure(figsize=[9.41, 6.79])
+        fig = plt.figure(figsize=[14, 7])
         xrange = np.arange(len(eval_metadata))
         scores = np.array(scores)
         yy = np.copy(yvals)
@@ -489,12 +491,13 @@ if __name__ == '__main__':
         sc = sc[sortidx]
         yy = yy[sortidx]
         for i in range(len(labels)):
-            plt.scatter(xrange[np.argmax(yy, axis=1) == i], sc[np.argmax(yy, axis=1) == i], label=classes[i])
+            plt.scatter(xrange[np.argmax(yy, axis=1) == i], sc[np.argmax(yy, axis=1) == i], label='{}={:.3f}'.format(classes[i], np.mean(sc[np.argmax(yy, axis=1) == i])))
         plt.axhline(y=1 / len(labels), color='r', linestyle=':')
-        plt.title(np.mean(scores))
+        plt.title('SVM Classification: {}'.format(np.mean(scores)))
         plt.ylim((0, 1))
         if len(labels) <= 3:
             plt.legend(ncol=3, loc='upper center', bbox_to_anchor=(0.5, -0.05))
         else:
-            plt.legend(ncol=3)
+            # plt.legend(ncol=3)
+            plt.legend(bbox_to_anchor=(0.5,-0.009), loc="lower center", bbox_transform=fig.transFigure, ncol=6)
         plt.savefig('results/scores.png')

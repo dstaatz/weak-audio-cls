@@ -206,7 +206,7 @@ preds = [getpreds(i) for i in range(ftimgs.shape[0])]
 scores = [np.mean(p == l) for p, l in zip(preds, truth)]
 
 # plt.scatter(np.arange(len(metadata)), scores)
-fig = plt.figure(figsize=[9.41, 6.79])
+fig = plt.figure(figsize=[14, 7])
 xrange = np.arange(len(metadata))
 scores = np.array(scores)
 yy = np.copy(yvals)
@@ -215,14 +215,15 @@ sc = np.copy(scores)
 sc = sc[sortidx]
 yy = yy[sortidx]
 for i in range(len(labels)):
-    plt.scatter(xrange[np.argmax(yy, axis=1)==i], sc[np.argmax(yy, axis=1)==i], label=classes[i])
+    plt.scatter(xrange[np.argmax(yy, axis=1) == i], sc[np.argmax(yy, axis=1) == i], label='{}={:.3f}'.format(classes[i], np.mean(sc[np.argmax(yy, axis=1) == i])))
 plt.axhline(y=1/len(labels), color='r', linestyle=':')
-plt.title(np.mean(scores))
+plt.title('CNN-Saliency Classification: {}'.format(np.mean(scores)))
 plt.ylim((0, 1))
 if len(labels) <= 3:
     plt.legend(ncol=3, loc='upper center', bbox_to_anchor=(0.5, -0.05))
 else:
-    plt.legend(ncol=3)
+    # plt.legend(ncol=3)
+    plt.legend(bbox_to_anchor=(0.5,-0.009), loc="lower center", bbox_transform=fig.transFigure, ncol=6)
 plt.savefig('results/scores.png')
 
 # if len(labels) <= 3: # code not written for more than 3 classes yet
