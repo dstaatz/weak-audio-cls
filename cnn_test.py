@@ -17,10 +17,21 @@ except:
 ontology = load_ontology()
 
 # dcase_classes = ["Alarm", "Vacuum cleaner"]
-dcase_classes = ["Alarm", "Vacuum cleaner"]
+dcase_classes = [
+    "Alarm",
+    "Speech",
+    "Dog",
+    "Cat",
+    "Dishes, pots, and pans",
+    "Frying (food)",
+    "Electric toothbrush",
+    "Vacuum cleaner",
+    "Blender",
+    "Water"]
 dcase_labels = [get_label_id_from_name(ontology, cl) for cl in dcase_classes]
 # dcase_metadata, dcase_stfts = getdata("dcase-weak", dcase_labels)
-dcase_metadata, dcase_stfts = getdata("dcase-eval", dcase_labels)
+dcase_metadata, dcase_stfts = getdata("dcase-eval", dcase_labels) # oops, training with eval, but whatever, as it's an approach that is somehwat intended to work on the training data or something
+# dcase_metadata, dcase_stfts = getdata("dcase-validation", dcase_labels) # seems validation is the same?
 
 google_classes = ["noise"]
 # google_classes = []
@@ -73,10 +84,19 @@ x = keras.layers.Dense(len(labels))(x)
 out = keras.layers.Softmax()(x)
 
 model = keras.Model(inputs=inp, outputs=out)
-model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.01), loss='CategoricalCrossentropy')
+if len(labels) <= 3:
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.01), loss='CategoricalCrossentropy')
+else:
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.005), loss='CategoricalCrossentropy')
 model.summary()
 
-model.fit(ftimgs, yvals, epochs=50, verbose=1)
+chkpt = tf.keras.callbacks.ModelCheckpoint(filepath='results/model.h5', save_best_only=True, monitor='loss')
+if len(labels) <= 3:
+    model.fit(ftimgs, yvals, epochs=50, verbose=1, callbacks=[chkpt])
+else:
+    model.fit(ftimgs, yvals, epochs=100, verbose=1, callbacks=[chkpt])
+
+model = keras.models.load_model('results/model.h5')
 
 # img = tf.Variable(ftimgs[0:1], dtype=float)
 # with tf.GradientTape() as tape:
@@ -117,6 +137,7 @@ def call_model_function(images, call_model_args=None, expected_keys=None):
 # plt.plot(temp)
 
 def getpreds(idx):
+    print('Generating prediction for {}'.format(idx))
     im = ftimgs[idx]
     sumvals = []
     for i in range(len(labels)):
@@ -139,11 +160,55 @@ def getpreds(idx):
 preds = [getpreds(i) for i in range(ftimgs.shape[0])]
 scores = [np.mean(p == l) for p, l in zip(preds, truth)]
 
-plt.scatter(np.arange(len(metadata)), scores)
+# plt.scatter(np.arange(len(metadata)), scores)
+xrange = np.arange(len(metadata))
+scores = np.array(scores)
+yy = np.copy(yvals)
+sortidx = np.argsort(np.argmax(yy, axis=1))
+sc = np.copy(scores)
+sc = sc[sortidx]
+yy = yy[sortidx]
+for i in range(len(labels)):
+    plt.scatter(xrange[np.argmax(yy, axis=1)==i], sc[np.argmax(yy, axis=1)==i])
 plt.axhline(y=1/len(labels), color='r', linestyle=':')
 plt.title(np.mean(scores))
 plt.ylim((0, 1))
+plt.legend([None] + classes, ncol=3)
 plt.savefig('results/scores.png')
 
+def makevid(meta, labelling, h_times, length, labels, truth=None):
+    outpath = 'results/' + meta['ytid'] + '.mp4'
+    temppath = 'results/temp_' + meta['ytid'] + '.mp4'
+    scalefactor = 10
+    vidshape = (len(labels)*scalefactor, 2*scalefactor)
+    fps = 30.0
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    video = cv2.VideoWriter(temppath, fourcc, fps, vidshape, True)
+    for i in range(int(length * fps)):
+        time = i / fps
+        idx = np.where(h_times <= time)[0][-1]
+        if idx >= len(labelling):
+            break
+        # img = np.zeros((vidshape[1]//scalefactor, vidshape[0]//scalefactor, 3), np.uint8)
+        img = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
+        # img[0, np.argwhere(np.array(labels)==labelling[idx])[0][0]] = (255, 255, 255)
+        loc = np.argwhere(np.array(labels) == labelling[idx])[0][0]
+        img[0:scalefactor, loc*scalefactor:(loc+1)*scalefactor] = (255, 255, 255)
+        if truth is not None:
+            # img[1, np.argwhere(np.array(labels)==truth[idx])[0][0]] = (255, 255, 255)
+            loc = np.argwhere(np.array(labels)==truth[idx])[0][0]
+            img[scalefactor:, loc*scalefactor:(loc+1)*scalefactor] = (255, 255, 255)
+        # img = img.resize((vidshape[1], vidshape[0], 3))
+        img = cv2.resize(img, vidshape)
+        video.write(img)
+    cv2.destroyAllWindows()
+    video.release()
+
+    # audioclip = moviepy.editor.AudioFileClip(meta['path'])
+    command = ['ffmpeg', '-i', temppath, '-i', meta['path'], '-c:v', 'copy', '-c:a', 'aac', outpath]
+    res = subprocess.run(command, capture_output=True)
+    os.remove(temppath)
+
+# if len(labels) <= 3: # code not written for more than 3 classes yet
 for i in range(len(metadata)):
     makevid(metadata[i], preds[i], stfts[i][1], stfts[i][1][-1], labels, truth[i])

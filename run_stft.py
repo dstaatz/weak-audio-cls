@@ -87,43 +87,6 @@ def get_stronglabelling(meta, htime, labels):
             labelling[start:stop] = sl[0]
     return labelling
 
-
-def makevid(meta, labelling, h_times, length, labels, truth=None):
-    outpath = 'results/' + meta['ytid'] + '.mp4'
-    temppath = 'results/temp_' + meta['ytid'] + '.mp4'
-    vidshape = (30, 30)
-    fps = 30.0
-    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    video = cv2.VideoWriter(temppath, fourcc, fps, vidshape, True)
-    for i in range(int(length * fps)):
-        time = i / fps
-        idx = np.where(h_times <= time)[0][-1]
-        if idx >= len(labelling):
-            break
-        img = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
-        if labelling[idx] == labels[0]:
-            img[:, :10] = (255, 255, 255)
-        elif labelling[idx] == labels[1]:
-            img[:, 10:20] = (255, 255, 255)
-        else:
-            img[:, 20:] = (255, 255, 255)
-        if truth is not None:
-            img[15:, :] = (0, 0, 0)
-            if truth[idx] == labels[0]:
-                img[15:, :10] = (255, 255, 255)
-            elif truth[idx] == labels[1]:
-                img[15:, 10:20] = (255, 255, 255)
-            else:
-                img[15:, 20:] = (255, 255, 255)
-        video.write(img)
-    cv2.destroyAllWindows()
-    video.release()
-
-    # audioclip = moviepy.editor.AudioFileClip(meta['path'])
-    command = ['ffmpeg', '-i', temppath, '-i', meta['path'], '-c:v', 'copy', '-c:a', 'aac', outpath]
-    res = subprocess.run(command, capture_output=True)
-    os.remove(temppath)
-
 if __name__ == '__main__':
     ontology = load_ontology()
 
@@ -411,52 +374,52 @@ if __name__ == '__main__':
 
         # testres = [clf.predict(v) for v in hist_xvals]
 
-        # def makevid(meta, labelling, h_times, length, truth=None):
-        #     outpath = 'results/' + meta['ytid'] + '.mp4'
-        #     temppath = 'results/temp_' + meta['ytid'] + '.mp4'
-        #     vidshape = (30, 30)
-        #     fps = 30.0
-        #     fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        #     video = cv2.VideoWriter(temppath, fourcc, fps, vidshape, True)
-        #     for i in range(int(length*fps)):
-        #         time = i/fps
-        #         idx = np.where(h_times <= time)[0][-1]
-        #         img = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
-        #         if labelling[idx] == labels[0]:
-        #             img[:, :10] = (255, 255, 255)
-        #         elif labelling[idx] == labels[1]:
-        #             img[:, 10:20] = (255, 255, 255)
-        #         else:
-        #             img[:, 20:] = (255, 255, 255)
-        #         # vec = np.copy(dec_func[idx])
-        #         # vec += np.min(vec)
-        #         # vec /= np.linalg.norm(vec)
-        #         # vec *= 255
-        #         # vec = probs[idx]*255
-        #         # img[15:, :10] = (vec[0], vec[0], vec[0])
-        #         # img[15:, 10:20] = (vec[1], vec[1], vec[1])
-        #         # img[15:, 20:] = (vec[2], vec[2], vec[2])
-        #         if truth is not None:
-        #             img[15:, :] = (0, 0, 0)
-        #             if truth[idx] == labels[0]:
-        #                 img[15:, :10] = (255, 255, 255)
-        #             elif truth[idx] == labels[1]:
-        #                 img[15:, 10:20] = (255, 255, 255)
-        #             else:
-        #                 img[15:, 20:] = (255, 255, 255)
-        #         video.write(img)
-        #     cv2.destroyAllWindows()
-        #     video.release()
-        #
-        #     # audioclip = moviepy.editor.AudioFileClip(meta['path'])
-        #     command = ['ffmpeg', '-i', temppath, '-i', meta['path'], '-c:v', 'copy', '-c:a', 'aac', outpath]
-        #     res = subprocess.run(command, capture_output=True)
-        #     os.remove(temppath)
+        def _makevid(meta, labelling, h_times, length, truth=None):
+            outpath = 'results/' + meta['ytid'] + '.mp4'
+            temppath = 'results/temp_' + meta['ytid'] + '.mp4'
+            vidshape = (30, 30)
+            fps = 30.0
+            fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+            video = cv2.VideoWriter(temppath, fourcc, fps, vidshape, True)
+            for i in range(int(length*fps)):
+                time = i/fps
+                idx = np.where(h_times <= time)[0][-1]
+                img = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
+                if labelling[idx] == labels[0]:
+                    img[:, :10] = (255, 255, 255)
+                elif labelling[idx] == labels[1]:
+                    img[:, 10:20] = (255, 255, 255)
+                else:
+                    img[:, 20:] = (255, 255, 255)
+                # vec = np.copy(dec_func[idx])
+                # vec += np.min(vec)
+                # vec /= np.linalg.norm(vec)
+                # vec *= 255
+                # vec = probs[idx]*255
+                # img[15:, :10] = (vec[0], vec[0], vec[0])
+                # img[15:, 10:20] = (vec[1], vec[1], vec[1])
+                # img[15:, 20:] = (vec[2], vec[2], vec[2])
+                if truth is not None:
+                    img[15:, :] = (0, 0, 0)
+                    if truth[idx] == labels[0]:
+                        img[15:, :10] = (255, 255, 255)
+                    elif truth[idx] == labels[1]:
+                        img[15:, 10:20] = (255, 255, 255)
+                    else:
+                        img[15:, 20:] = (255, 255, 255)
+                video.write(img)
+            cv2.destroyAllWindows()
+            video.release()
 
-        # makevid(eval_metadata[0], preds[0], eval_htimes[0], eval_stfts[0][1][-1])
+            # audioclip = moviepy.editor.AudioFileClip(meta['path'])
+            command = ['ffmpeg', '-i', temppath, '-i', meta['path'], '-c:v', 'copy', '-c:a', 'aac', outpath]
+            res = subprocess.run(command, capture_output=True)
+            os.remove(temppath)
+
+        # _makevid(eval_metadata[0], preds[0], eval_htimes[0], eval_stfts[0][1][-1])
         for i in range(len(eval_metadata)):
-            # makevid(eval_metadata[i], probs[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1])
-            makevid(eval_metadata[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1], labels, eval_labelling[i])
+            # _makevid(eval_metadata[i], probs[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1])
+            _makevid(eval_metadata[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1], labels, eval_labelling[i])
 
         allnoise = np.repeat(labels[-1], len(np.concatenate(preds))).astype(object)
         print(np.mean(np.concatenate(preds) == np.concatenate(eval_labelling)))
