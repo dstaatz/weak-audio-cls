@@ -16,7 +16,6 @@ import cv2
 import subprocess
 
 def getdata(splittype, labels):
-
     # Google
     if splittype.lower() == "google-balanced":
         metafile = "google_audioset_meta/balanced_train_segments.csv"
@@ -57,7 +56,6 @@ def getdata(splittype, labels):
     stfts = [stft(data[i], fs=freqs[i], nperseg=512, nfft=1024) for i in range(len(data))]
     return metadata, stfts
 
-
 def get_yvals(metadata, labels):
     y_labels = []
     for item in metadata:
@@ -87,11 +85,55 @@ def get_stronglabelling(meta, htime, labels):
             labelling[start:stop] = sl[0]
     return labelling
 
+def makevid(meta, labelling, h_times, length, labels, truth=None):
+    outpath = 'results/' + meta['ytid'] + '.mp4'
+    temppath = 'results/temp_' + meta['ytid'] + '.mp4'
+    scalefactor = 10
+    vidshape = (len(labels)*scalefactor, 2*scalefactor)
+    fps = 30.0
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    video = cv2.VideoWriter(temppath, fourcc, fps, vidshape, True)
+    for i in range(int(length * fps)):
+        time = i / fps
+        idx = np.where(h_times <= time)[0][-1]
+        if idx >= len(labelling):
+            break
+        # img = np.zeros((vidshape[1]//scalefactor, vidshape[0]//scalefactor, 3), np.uint8)
+        img = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
+        # img[0, np.argwhere(np.array(labels)==labelling[idx])[0][0]] = (255, 255, 255)
+        loc = np.argwhere(np.array(labels) == labelling[idx])[0][0]
+        img[0:scalefactor, loc*scalefactor:(loc+1)*scalefactor] = (255, 255, 255)
+        if truth is not None:
+            # img[1, np.argwhere(np.array(labels)==truth[idx])[0][0]] = (255, 255, 255)
+            loc = np.argwhere(np.array(labels)==truth[idx])[0][0]
+            img[scalefactor:, loc*scalefactor:(loc+1)*scalefactor] = (255, 255, 255)
+        # img = img.resize((vidshape[1], vidshape[0], 3))
+        img = cv2.resize(img, vidshape)
+        video.write(img)
+    cv2.destroyAllWindows()
+    video.release()
+
+    # audioclip = moviepy.editor.AudioFileClip(meta['path'])
+    command = ['ffmpeg', '-i', temppath, '-i', meta['path'], '-c:v', 'copy', '-c:a', 'aac', outpath]
+    res = subprocess.run(command, capture_output=True)
+    os.remove(temppath)
+
 if __name__ == '__main__':
     ontology = load_ontology()
 
-    # dcase_classes = ["Alarm", "Vacuum cleaner"]
-    dcase_classes = ["Vacuum cleaner"]
+    dcase_classes = ["Alarm", "Vacuum cleaner"]
+    # dcase_classes = ["Vacuum cleaner"]
+    # dcase_classes = [
+    #     "Alarm",
+    #     "Speech",
+    #     "Dog",
+    #     "Cat",
+    #     "Dishes, pots, and pans",
+    #     "Frying (food)",
+    #     "Electric toothbrush",
+    #     "Vacuum cleaner",
+    #     "Blender",
+    #     "Water"]
     dcase_labels = [get_label_id_from_name(ontology, cl) for cl in dcase_classes]
     dcase_metadata, dcase_stfts = getdata("dcase-weak", dcase_labels)
 
@@ -374,60 +416,85 @@ if __name__ == '__main__':
 
         # testres = [clf.predict(v) for v in hist_xvals]
 
-        def _makevid(meta, labelling, h_times, length, truth=None):
-            outpath = 'results/' + meta['ytid'] + '.mp4'
-            temppath = 'results/temp_' + meta['ytid'] + '.mp4'
-            vidshape = (30, 30)
-            fps = 30.0
-            fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-            video = cv2.VideoWriter(temppath, fourcc, fps, vidshape, True)
-            for i in range(int(length*fps)):
-                time = i/fps
-                idx = np.where(h_times <= time)[0][-1]
-                img = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
-                if labelling[idx] == labels[0]:
-                    img[:, :10] = (255, 255, 255)
-                elif labelling[idx] == labels[1]:
-                    img[:, 10:20] = (255, 255, 255)
-                else:
-                    img[:, 20:] = (255, 255, 255)
-                # vec = np.copy(dec_func[idx])
-                # vec += np.min(vec)
-                # vec /= np.linalg.norm(vec)
-                # vec *= 255
-                # vec = probs[idx]*255
-                # img[15:, :10] = (vec[0], vec[0], vec[0])
-                # img[15:, 10:20] = (vec[1], vec[1], vec[1])
-                # img[15:, 20:] = (vec[2], vec[2], vec[2])
-                if truth is not None:
-                    img[15:, :] = (0, 0, 0)
-                    if truth[idx] == labels[0]:
-                        img[15:, :10] = (255, 255, 255)
-                    elif truth[idx] == labels[1]:
-                        img[15:, 10:20] = (255, 255, 255)
-                    else:
-                        img[15:, 20:] = (255, 255, 255)
-                video.write(img)
-            cv2.destroyAllWindows()
-            video.release()
-
-            # audioclip = moviepy.editor.AudioFileClip(meta['path'])
-            command = ['ffmpeg', '-i', temppath, '-i', meta['path'], '-c:v', 'copy', '-c:a', 'aac', outpath]
-            res = subprocess.run(command, capture_output=True)
-            os.remove(temppath)
+        # def _makevid(meta, labelling, h_times, length, truth=None):
+        #     outpath = 'results/' + meta['ytid'] + '.mp4'
+        #     temppath = 'results/temp_' + meta['ytid'] + '.mp4'
+        #     vidshape = (30, 30)
+        #     fps = 30.0
+        #     fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        #     video = cv2.VideoWriter(temppath, fourcc, fps, vidshape, True)
+        #     for i in range(int(length*fps)):
+        #         time = i/fps
+        #         idx = np.where(h_times <= time)[0][-1]
+        #         img = np.zeros((vidshape[1], vidshape[0], 3), np.uint8)
+        #         if labelling[idx] == labels[0]:
+        #             img[:, :10] = (255, 255, 255)
+        #         elif labelling[idx] == labels[1]:
+        #             img[:, 10:20] = (255, 255, 255)
+        #         else:
+        #             img[:, 20:] = (255, 255, 255)
+        #         # vec = np.copy(dec_func[idx])
+        #         # vec += np.min(vec)
+        #         # vec /= np.linalg.norm(vec)
+        #         # vec *= 255
+        #         # vec = probs[idx]*255
+        #         # img[15:, :10] = (vec[0], vec[0], vec[0])
+        #         # img[15:, 10:20] = (vec[1], vec[1], vec[1])
+        #         # img[15:, 20:] = (vec[2], vec[2], vec[2])
+        #         if truth is not None:
+        #             img[15:, :] = (0, 0, 0)
+        #             if truth[idx] == labels[0]:
+        #                 img[15:, :10] = (255, 255, 255)
+        #             elif truth[idx] == labels[1]:
+        #                 img[15:, 10:20] = (255, 255, 255)
+        #             else:
+        #                 img[15:, 20:] = (255, 255, 255)
+        #         video.write(img)
+        #     cv2.destroyAllWindows()
+        #     video.release()
+        #
+        #     # audioclip = moviepy.editor.AudioFileClip(meta['path'])
+        #     command = ['ffmpeg', '-i', temppath, '-i', meta['path'], '-c:v', 'copy', '-c:a', 'aac', outpath]
+        #     res = subprocess.run(command, capture_output=True)
+        #     os.remove(temppath)
 
         # _makevid(eval_metadata[0], preds[0], eval_htimes[0], eval_stfts[0][1][-1])
         for i in range(len(eval_metadata)):
             # _makevid(eval_metadata[i], probs[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1])
-            _makevid(eval_metadata[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1], labels, eval_labelling[i])
+            # _makevid(eval_metadata[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1], eval_labelling[i])
+            makevid(eval_metadata[i], preds[i], eval_htimes[i], eval_stfts[i][1][-1], labels, eval_labelling[i])
 
-        allnoise = np.repeat(labels[-1], len(np.concatenate(preds))).astype(object)
-        print(np.mean(np.concatenate(preds) == np.concatenate(eval_labelling)))
-        print(np.mean((allnoise) == np.concatenate(eval_labelling)))
-
+        # allnoise = np.repeat(labels[-1], len(np.concatenate(preds))).astype(object)
+        # print(np.mean(np.concatenate(preds) == np.concatenate(eval_labelling)))
+        # print(np.mean((allnoise) == np.concatenate(eval_labelling)))
+        #
         scores = [np.mean(p == l) for p, l in zip(preds, eval_labelling)]
-        noisescores = [np.mean(labels[-1] == l) for l in eval_labelling]
-        label1scores = [np.mean(labels[0] == l) for l in eval_labelling]
+        # noisescores = [np.mean(labels[-1] == l) for l in eval_labelling]
+        # label1scores = [np.mean(labels[0] == l) for l in eval_labelling]
+        #
+        # plt.plot(scores)
+        # plt.plot(label1scores)
 
-        plt.plot(scores)
-        plt.plot(label1scores)
+        yvals = get_yvals(eval_metadata, labels)
+        yvals = [np.where(y == np.array(labels))[0][0] for y in yvals]
+        onehot = np.eye(len(labels))
+        yvals = np.array([onehot[y] for y in yvals])
+
+        fig = plt.figure(figsize=[9.41, 6.79])
+        xrange = np.arange(len(eval_metadata))
+        scores = np.array(scores)
+        yy = np.copy(yvals)
+        sortidx = np.argsort(np.argmax(yy, axis=1))
+        sc = np.copy(scores)
+        sc = sc[sortidx]
+        yy = yy[sortidx]
+        for i in range(len(labels)):
+            plt.scatter(xrange[np.argmax(yy, axis=1) == i], sc[np.argmax(yy, axis=1) == i], label=classes[i])
+        plt.axhline(y=1 / len(labels), color='r', linestyle=':')
+        plt.title(np.mean(scores))
+        plt.ylim((0, 1))
+        if len(labels) <= 3:
+            plt.legend(ncol=3, loc='upper center', bbox_to_anchor=(0.5, -0.05))
+        else:
+            plt.legend(ncol=3)
+        plt.savefig('results/scores.png')
