@@ -17,9 +17,10 @@ except:
 ontology = load_ontology()
 
 # dcase_classes = ["Alarm", "Vacuum cleaner"]
-dcase_classes = ["dog"]
+dcase_classes = ["Alarm", "Vacuum cleaner"]
 dcase_labels = [get_label_id_from_name(ontology, cl) for cl in dcase_classes]
-dcase_metadata, dcase_stfts = getdata("dcase-weak", dcase_labels)
+# dcase_metadata, dcase_stfts = getdata("dcase-weak", dcase_labels)
+dcase_metadata, dcase_stfts = getdata("dcase-eval", dcase_labels)
 
 google_classes = ["noise"]
 # google_classes = []
@@ -37,9 +38,15 @@ ftimgs = [np.abs(stft[2][:, :ftsize]) if stft[2].shape[1] > ftsize else None for
 # remove the ones that are somehow < 9 seconds (not sure how they got into the dataset)
 yvals = get_yvals(metadata, labels)
 yvals = [np.where(y == np.array(labels))[0][0] for y in yvals]
+
+truth = [get_stronglabelling(meta, stft[1], labels) for meta, stft in zip(metadata, stfts)]
+truth = [t[:ftsize] for t, ft in zip(truth, ftimgs) if ft is not None]
+
 temp = [y for y, ft in zip(yvals, ftimgs) if ft is not None]
+stfts = [s for s, ft in zip(stfts, ftimgs) if ft is not None]
 metadata = [meta for meta, ft in zip(metadata, ftimgs) if ft is not None]
 ftimgs = np.array([ft for y, ft in zip(yvals, ftimgs) if ft is not None])
+
 ftmax = np.max(ftimgs)
 ftimgs /= ftmax
 # ftsums = ftimgs.sum(axis=(1,2))
@@ -92,19 +99,51 @@ def call_model_function(images, call_model_args=None, expected_keys=None):
         gradients = np.array(tape.gradient(output_layer, images))
         return {saliency.base.INPUT_OUTPUT_GRADIENTS: gradients}
 
-i = 0
-im = ftimgs[i]
-predictions = model(np.array([im]))
-prediction_class = np.argmax(predictions[0])
-call_model_args = {class_idx_str: prediction_class}
+# i = 0
+# im = ftimgs[i]
+# predictions = model(np.array([im]))
+# prediction_class = np.argmax(predictions[0])
+# call_model_args = {class_idx_str: prediction_class}
+#
+# gradient_saliency = saliency.GradientSaliency()
+#
+# # Compute the vanilla mask and the smoothed mask.
+# vanilla_mask_3d = gradient_saliency.GetMask(im, call_model_function, call_model_args)
+# smoothgrad_mask_3d = gradient_saliency.GetSmoothedMask(im, call_model_function, call_model_args)
+#
+# temp = vanilla_mask_3d.copy()
+# temp[temp < 0] = 0
+# temp = temp.sum(axis=0)
+# plt.plot(temp)
 
-gradient_saliency = saliency.GradientSaliency()
+def getpreds(idx):
+    im = ftimgs[idx]
+    sumvals = []
+    for i in range(len(labels)):
+        call_model_args = {class_idx_str: i}
+        gradient_saliency = saliency.GradientSaliency()
+        vanilla_mask_3d = gradient_saliency.GetMask(im, call_model_function, call_model_args)
+        temp = vanilla_mask_3d.copy()
+        # temp[temp < 0] = 0
+        temp = temp.sum(axis=0)
+        sumvals.append(temp)
+    sumvals = np.array(sumvals)
+    preds = np.argmax(sumvals, axis=0).astype(object)
+    for i in range(len(labels)):
+        preds[preds==i] = labels[i]
+    return preds
 
-# Compute the vanilla mask and the smoothed mask.
-vanilla_mask_3d = gradient_saliency.GetMask(im, call_model_function, call_model_args)
-smoothgrad_mask_3d = gradient_saliency.GetSmoothedMask(im, call_model_function, call_model_args)
+# pred = getpreds(0)
+# plt.plot(pred)
+# plt.plot(truth[0])
+preds = [getpreds(i) for i in range(ftimgs.shape[0])]
+scores = [np.mean(p == l) for p, l in zip(preds, truth)]
 
-temp = vanilla_mask_3d.copy()
-temp[temp < 0] = 0
-temp = temp.sum(axis=0)
-plt.plot(temp)
+plt.scatter(np.arange(len(metadata)), scores)
+plt.axhline(y=1/len(labels), color='r', linestyle=':')
+plt.title(np.mean(scores))
+plt.ylim((0, 1))
+plt.savefig('results/scores.png')
+
+for i in range(len(metadata)):
+    makevid(metadata[i], preds[i], stfts[i][1], stfts[i][1][-1], labels, truth[i])
